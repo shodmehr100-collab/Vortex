@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChemTest Pro</title>
+<title>Vertex</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -733,7 +733,7 @@ function exportTest(){
 }
 function exportAllData(){
   const data=JSON.stringify({teachers,tests},null,2);
-  dlJSON(data,'chemtest_backup_'+new Date().toISOString().slice(0,10)+'.json');
+  dlJSON(data,'vortex_backup_'+new Date().toISOString().slice(0,10)+'.json');
   toast('Backup сохта шуд! 💾','ok');
 }
 function dlJSON(data,filename){
