@@ -245,26 +245,28 @@ function renderQuestionsList() {
   
   container.innerHTML = currentTest.questions.map((q, i) => {
     let preview = '';
-    if (q.type === 'closed') preview = `${q.q.substring(0, 50)}... [${String.fromCharCode(65 + q.ans)}]`;
-    else if (q.type === 'multi') preview = `${q.q.substring(0, 50)}... [${q.ans.map(a => String.fromCharCode(65 + a)).join(',')}]`;
-    else if (q.type === 'match') preview = `${q.text?.substring(0, 50)}...`;
-    else preview = `${q.q?.substring(0, 50)}...`;
+    const hasImage = q.img ? '🖼️ ' : '';
+    
+    if (q.type === 'closed') preview = `${hasImage}${q.q.substring(0, 50)}... [${String.fromCharCode(65 + q.ans)}]`;
+    else if (q.type === 'multi') preview = `${hasImage}${q.q.substring(0, 50)}... [${q.ans.map(a => String.fromCharCode(65 + a)).join(',')}]`;
+    else if (q.type === 'match') preview = `${hasImage}${q.text?.substring(0, 50)}...`;
+    else preview = `${hasImage}${q.q?.substring(0, 50)}...`;
     
     return `
       <div class="question-editor" style="background:var(--surface2); padding:12px; margin-bottom:8px; border-radius:12px">
         <div style="display:flex; justify-content:space-between">
-          <strong>${i + 1}. ${q.type === 'closed' ? '📘' : q.type === 'multi' ? '🎯' : q.type === 'match' ? '🔗' : '💡'}</strong>
+          <strong>${i + 1}. ${q.type === 'closed' ? '📘' : q.type === 'multi' ? '🎯' : q.type === 'match' ? '🔗' : '💡'} ${q.img ? '🖼️' : ''}</strong>
           <div>
             <button class="btn btn-sm btn-outline" onclick="window.appEditQuestion(${i})">✏</button>
             <button class="btn btn-sm btn-danger" onclick="window.appDeleteQuestion(${i})">🗑</button>
           </div>
         </div>
         <div style="font-size:13px; color:var(--muted)">${escapeHtml(preview)}</div>
+        ${q.img ? `<div style="font-size:10px; margin-top:4px; color:var(--accent)">🖼 Расм дорад</div>` : ''}
       </div>
     `;
   }).join('');
 }
-
 function renderStudentPanel() {
   appContainer.innerHTML = `
     <div class="container">
@@ -293,11 +295,19 @@ function renderQuiz() {
   const question = quizData.test.questions[currentQuestionIndex];
   const timeDisplay = formatTime(quizData.timeLeft);
   
+  // Барои расм
+  const imageHtml = question.img ? `
+    <div style="text-align:center; margin:16px 0; padding:12px; background:var(--surface2); border-radius:16px">
+      <img src="${escapeHtml(question.img)}" alt="Расми савол" style="max-width:100%; max-height:200px; border-radius:12px; object-fit:contain">
+    </div>
+  ` : '';
+  
   let contentHtml = '';
   
   if (question.type === 'closed') {
     contentHtml = `
       <div>
+        ${imageHtml}
         <p style="font-size:20px; margin-bottom:20px">${escapeHtml(question.q)}</p>
         ${question.opts.map((opt, i) => `
           <button class="option-btn" onclick="window.appSelectClosed(${i})" id="opt_${i}">
@@ -309,6 +319,7 @@ function renderQuiz() {
   } else if (question.type === 'multi') {
     contentHtml = `
       <div>
+        ${imageHtml}
         <p style="font-size:20px; margin-bottom:20px">${escapeHtml(question.q)}</p>
         ${question.opts.map((opt, i) => `
           <button class="option-btn" onclick="window.appToggleMulti(${i})" id="opt_${i}">
@@ -318,7 +329,7 @@ function renderQuiz() {
       </div>
     `;
   } else if (question.type === 'match') {
-    let matchHtml = `<p style="font-size:18px; margin-bottom:16px">${escapeHtml(question.text)}</p>`;
+    let matchHtml = `${imageHtml}<p style="font-size:18px; margin-bottom:16px">${escapeHtml(question.text)}</p>`;
     for (let i = 0; i < question.lefts.length; i++) {
       matchHtml += `
         <div class="match-row">
@@ -334,6 +345,7 @@ function renderQuiz() {
   } else {
     contentHtml = `
       <div>
+        ${imageHtml}
         <p style="font-size:20px; margin-bottom:20px">${escapeHtml(question.q)}</p>
         <input type="text" id="openAns" style="width:100%; padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:16px" placeholder="Ҷавоби худро нависед...">
       </div>
@@ -353,14 +365,36 @@ function renderQuiz() {
     </div>
   `;
   
-  // Setup timer update
   window.onTimerUpdate = (time) => {
     const timerEl = document.getElementById('quizTimer');
     if (timerEl) timerEl.textContent = time;
   };
   
-  // Setup next button
   document.getElementById('quizNextBtn').onclick = () => {
+    if (question.type === 'match') {
+      const q = quizData.test.questions[currentQuestionIndex];
+      const selected = [];
+      let allSelected = true;
+      for (let i = 0; i < q.lefts.length; i++) {
+        const val = document.getElementById(`match_${i}`)?.value;
+        if (!val) allSelected = false;
+        else selected.push(parseInt(val));
+      }
+      if (allSelected) {
+        saveAnswer(currentQuestionIndex, { type: 'match', selected });
+      } else {
+        showToast('Ҳамаи ҷуфтҳоро интихоб кунед!');
+        return;
+      }
+    } else if (question.type === 'open') {
+      const val = document.getElementById('openAns')?.value.trim();
+      if (!val) {
+        showToast('Ҷавобро нависед!');
+        return;
+      }
+      saveAnswer(currentQuestionIndex, { type: 'open', selected: val });
+    }
+    
     if (currentQuestionIndex < quizData.test.questions.length - 1) {
       currentQuestionIndex++;
       renderQuiz();
@@ -587,12 +621,21 @@ window.appToggleMulti = (index) => {
 
 window.appShowReview = () => {
   const review = getStudentReview();
+  const questions = quizData?.test.questions || [];
   
   let html = '<h3>📖 ТАҲЛИЛИ ҶАВОБҲО</h3>';
-  review.forEach(r => {
+  review.forEach((r, idx) => {
+    const question = questions[idx];
+    const imageHtml = question?.img ? `
+      <div style="margin:8px 0">
+        <img src="${escapeHtml(question.img)}" style="max-width:100%; max-height:120px; border-radius:8px">
+      </div>
+    ` : '';
+    
     html += `
       <div class="review-item" style="border-left-color: ${r.status === 'correct' ? '#10b981' : '#ef4444'}">
         <div><strong>Савол ${r.index}:</strong> ${r.status === 'correct' ? '✅' : '❌'}</div>
+        ${imageHtml}
         <div style="font-size:13px; margin:8px 0">${escapeHtml(r.question)}</div>
         <div style="font-size:12px">
           <div>📝 Шумо: ${escapeHtml(r.userAnswer)}</div>
@@ -606,7 +649,6 @@ window.appShowReview = () => {
   document.getElementById('resultTitle').innerHTML = '📖 ТАҲЛИЛИ ҶАВОБҲО';
   document.getElementById('resultContent').innerHTML = html;
 };
-
 window.appGeneratePDF = async () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -630,6 +672,7 @@ window.appGeneratePDF = async () => {
 };
 
 // Question Modal
+// Question Modal
 function openQuestionModal(index = null) {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
@@ -650,6 +693,21 @@ function openQuestionModal(index = null) {
           <option value="open">Кушода</option>
         </select>
       </div>
+      
+      <!-- РАСМ ИЛОВА КУНЕД -->
+      <div class="input-group">
+        <label>🖼 РАСМИ САВОЛ:</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <input type="text" id="questionImage" placeholder="URL ё Base64" style="flex:2">
+          <input type="file" id="questionImageFile" accept="image/*" style="flex:1">
+          <button type="button" class="btn btn-sm btn-primary" onclick="window.uploadQuestionImage()">📤 Боргузорӣ</button>
+        </div>
+        <div id="imagePreviewArea" style="margin-top:8px; display:none">
+          <img id="imagePreviewImg" style="max-width:100%; max-height:100px; border-radius:8px">
+          <button type="button" class="btn btn-sm btn-danger" onclick="window.clearQuestionImage()" style="margin-top:4px">✖ Тоза кардан</button>
+        </div>
+      </div>
+      
       <div id="questionTypeFields"></div>
       <div class="input-group">
         <label>Шарҳ:</label>
@@ -717,6 +775,16 @@ function openQuestionModal(index = null) {
       if (q) {
         document.getElementById('questionComment').value = q.comment || '';
         
+        // Боркунии расм барои таҳрир
+        const questionImage = document.getElementById('questionImage');
+        const previewArea = document.getElementById('imagePreviewArea');
+        const previewImg = document.getElementById('imagePreviewImg');
+        if (q.img && questionImage) {
+          questionImage.value = q.img;
+          if (previewImg) previewImg.src = q.img;
+          if (previewArea) previewArea.style.display = 'block';
+        }
+        
         if (q.type === 'closed') {
           setTimeout(() => {
             const el = document.getElementById('closed_q');
@@ -766,6 +834,7 @@ function openQuestionModal(index = null) {
   document.getElementById('saveQuestionBtn').onclick = () => {
     const type = typeSelect.value;
     const comment = document.getElementById('questionComment').value;
+    const imageUrl = document.getElementById('questionImage').value;
     let question = null;
     
     if (type === 'closed') {
@@ -776,7 +845,7 @@ function openQuestionModal(index = null) {
         showToast('Ҳамаи майдонҳоро пур кунед!');
         return;
       }
-      question = { type, q, opts, ans, comment };
+      question = { type, q, opts, ans, comment, img: imageUrl || null };
     } else if (type === 'multi') {
       const q = document.getElementById('multi_q').value;
       const opts = [0,1,2,3].map(i => document.getElementById(`multi_opt_${i}`).value);
@@ -785,14 +854,14 @@ function openQuestionModal(index = null) {
         showToast('Ҳамаи майдонҳоро пур кунед!');
         return;
       }
-      question = { type, q, opts, ans, comment };
+      question = { type, q, opts, ans, comment, img: imageUrl || null };
     } else if (type === 'match') {
       const text = document.getElementById('match_text').value;
       if (!text || window.matchLefts.length === 0 || window.matchRights.length === 0) {
         showToast('Ҳамаи майдонҳоро пур кунед!');
         return;
       }
-      question = { type, text, lefts: window.matchLefts, rights: window.matchRights, pairs: window.matchPairs, comment };
+      question = { type, text, lefts: window.matchLefts, rights: window.matchRights, pairs: window.matchPairs, comment, img: imageUrl || null };
     } else {
       const q = document.getElementById('open_q').value;
       const ans = document.getElementById('open_ans').value;
@@ -800,7 +869,7 @@ function openQuestionModal(index = null) {
         showToast('Ҳамаи майдонҳоро пур кунед!');
         return;
       }
-      question = { type, q, ans, comment };
+      question = { type, q, ans, comment, img: imageUrl || null };
     }
     
     if (index !== null) {
@@ -814,21 +883,6 @@ function openQuestionModal(index = null) {
     modal.remove();
   };
 }
-
-window.appAddMatchLeft = () => {
-  if (!window.matchLefts) window.matchLefts = [];
-  if (!window.matchPairs) window.matchPairs = [];
-  window.matchLefts.push('');
-  window.matchPairs.push(0);
-  renderMatchFields();
-};
-
-window.appAddMatchRight = () => {
-  if (!window.matchRights) window.matchRights = [];
-  window.matchRights.push('');
-  renderMatchFields();
-};
-
 function renderMatchFields() {
   const leftContainer = document.getElementById('match_lefts_container');
   const rightContainer = document.getElementById('match_rights_container');
@@ -875,6 +929,58 @@ window.toggleTheme = () => {
 if (localStorage.getItem('theme') === 'light') {
   document.body.classList.add('light');
 }
+// ========== ФУНКСИЯҲОИ РАСМ (ГЛОБАЛӢ) ==========
+window.uploadQuestionImage = () => {
+  const fileInput = document.getElementById('questionImageFile');
+  const imageInput = document.getElementById('questionImage');
+  const previewImg = document.getElementById('imagePreviewImg');
+  const previewArea = document.getElementById('imagePreviewArea');
+  
+  if (!fileInput || !imageInput) {
+    showToast('Лутфан аввал modal-ро кушоед!');
+    return;
+  }
+  
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageInput.value = e.target.result;
+      if (previewImg) previewImg.src = e.target.result;
+      if (previewArea) previewArea.style.display = 'block';
+      showToast('Расм бор шуд!');
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else if (imageInput.value) {
+    if (previewImg) previewImg.src = imageInput.value;
+    if (previewArea) previewArea.style.display = 'block';
+  } else {
+    showToast('Файл ё URL интихоб кунед!');
+  }
+};
 
+window.clearQuestionImage = () => {
+  const imageInput = document.getElementById('questionImage');
+  const fileInput = document.getElementById('questionImageFile');
+  const previewArea = document.getElementById('imagePreviewArea');
+  
+  if (imageInput) imageInput.value = '';
+  if (fileInput) fileInput.value = '';
+  if (previewArea) previewArea.style.display = 'none';
+  showToast('Расм тоза шуд');
+};
+// =============================================
 // Start app
+window.appAddMatchLeft = () => {
+  if (!window.matchLefts) window.matchLefts = [];
+  if (!window.matchPairs) window.matchPairs = [];
+  window.matchLefts.push('');
+  window.matchPairs.push(0);
+  renderMatchFields();
+};
+
+window.appAddMatchRight = () => {
+  if (!window.matchRights) window.matchRights = [];
+  window.matchRights.push('');
+  renderMatchFields();
+};
 init();
