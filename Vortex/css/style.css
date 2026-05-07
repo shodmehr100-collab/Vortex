@@ -464,3 +464,34 @@ input, textarea, select {
     border: 1px solid #ddd;
   }
 }
+/* Барои расмҳо дар саволҳо */
+.question-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 12px;
+  margin: 12px 0;
+  object-fit: contain;
+  background: var(--surface2);
+  padding: 8px;
+}
+
+#imagePreviewArea {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--surface2);
+  border-radius: 8px;
+  text-align: center;
+}
+
+#imagePreviewArea img {
+  max-width: 100%;
+  max-height: 100px;
+  border-radius: 8px;
+}
+
+.review-item img {
+  max-width: 200px;
+  max-height: 100px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
