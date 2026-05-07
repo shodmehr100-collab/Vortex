@@ -2,1265 +2,478 @@
 <html lang="tg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vortex</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>VORTEX - Системаи интеллектуалии тестӣ</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyACjm3u1yykb3YNO9ehbzXYfuqpGe8Xljo",
+    authDomain: "vortex-57609.firebaseapp.com",
+    projectId: "vortex-57609",
+    storageBucket: "vortex-57609.firebasestorage.app",
+    messagingSenderId: "163139872965",
+    appId: "1:163139872965:web:a605d6bba3f4ab6eec68ac",
+    measurementId: "G-CYXSLQS56T"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  
+  window.db = database;
+  window.dbRef = ref;
+  window.dbGet = get;
+  window.dbSet = set;
+  window.dbUpdate = update;
+  window.dbRemove = remove;
+  window.dbChild = child;
+  
+  console.log("🔥 Firebase connected!");
+</script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#080c14;
-  --s1:#0d1424;
-  --s2:#111d30;
-  --s3:#162038;
-  --ac:#4f8ef7;
-  --ac2:#22d3c5;
-  --gold:#f5b942;
-  --green:#22c55e;
-  --red:#f4514a;
-  --purple:#a78bfa;
-  --text:#e8eef8;
-  --muted:#6b7fa3;
-  --border:rgba(79,142,247,0.12);
-  --r:14px;
-  --rs:8px;
-  --glow:0 0 30px rgba(79,142,247,0.15);
-}
-body.light{
-  --bg:#f0f4fa;
-  --s1:#ffffff;
-  --s2:#e8edf8;
-  --s3:#dce4f4;
-  --text:#0d1424;
-  --muted:#5a6a8a;
-  --border:rgba(79,142,247,0.18);
-  --glow:0 0 20px rgba(79,142,247,0.08);
-}
-body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
-.wrap{max-width:1100px;margin:0 auto;padding:20px 16px}
-
-/* ===== GRID BG ===== */
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,142,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1}
-
-/* ===== HEADER ===== */
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 0 24px;border-bottom:1px solid var(--border);margin-bottom:28px;flex-wrap:wrap;gap:12px}
-.logo{display:flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none}
-.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,#4f8ef7,#22d3c5);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 20px rgba(79,142,247,0.4)}
-.logo h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:linear-gradient(135deg,#4f8ef7,#22d3c5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo p{font-size:11px;color:var(--muted);margin-top:1px}
-.hdr-right{display:flex;align-items:center;gap:10px}
-.theme-btn{background:var(--s2);border:1px solid var(--border);border-radius:30px;padding:7px 16px;cursor:pointer;font-size:18px;color:var(--text);display:flex;align-items:center;gap:6px;transition:all .2s}
-.theme-btn:hover{border-color:var(--ac)}
-.user-chip{background:var(--s2);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-.user-chip span{color:var(--ac);font-weight:600}
-
-/* ===== PANELS ===== */
-.hidden{display:none!important}
-.panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:22px;box-shadow:var(--glow)}
-.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
-.pt{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
-.sub{color:var(--muted);font-size:13px;margin-top:3px}
-
-/* ===== INPUTS ===== */
-.ig{margin-bottom:16px}
-.ig label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
-.ig input,.ig textarea,.ig select{width:100%;padding:11px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:14px;transition:border-color .2s,box-shadow .2s;outline:none}
-.ig input:focus,.ig textarea:focus,.ig select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,142,247,0.15)}
-.ig textarea{resize:vertical;min-height:70px}
-.ig select option{background:var(--s1)}
-
-/* ===== BUTTONS ===== */
-.btn{padding:10px 20px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;letter-spacing:.3px;display:inline-flex;align-items:center;gap:7px}
-.btn:hover{transform:translateY(-1px)}
-.btn:active{transform:translateY(0)}
-.btn-sm{padding:6px 13px;font-size:12px}
-.btn-xs{padding:4px 10px;font-size:11px}
-.bp{background:linear-gradient(135deg,#4f8ef7,#22d3c5);color:#fff;box-shadow:0 4px 15px rgba(79,142,247,0.3)}
-.bp:hover{box-shadow:0 6px 20px rgba(79,142,247,0.45)}
-.bd{background:var(--red);color:#fff}
-.bg{background:var(--green);color:#fff}
-.bw{background:var(--gold);color:#000}
-.bo{background:transparent;border:1px solid var(--border);color:var(--text)}
-.bo:hover{border-color:var(--ac);color:var(--ac)}
-.bpur{background:var(--purple);color:#fff}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
-
-/* ===== HOME CARDS ===== */
-.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
-.home-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:32px 24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
-.home-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--ac),var(--ac2));opacity:0;transition:opacity .3s}
-.home-card:hover::before{opacity:0.06}
-.home-card:hover{border-color:var(--ac);transform:translateY(-4px);box-shadow:0 12px 40px rgba(79,142,247,0.15)}
-.home-card .hci{font-size:52px;margin-bottom:14px;display:block}
-.home-card h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px}
-.home-card p{font-size:13px;color:var(--muted);line-height:1.5}
-
-/* ===== STATS BAR ===== */
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.stat-card{background:var(--s2);border-radius:var(--rs);padding:14px;text-align:center;border:1px solid var(--border)}
-.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ac)}
-.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
-
-/* ===== TEST ITEMS ===== */
-.test-list{display:flex;flex-direction:column;gap:10px}
-.ti{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;transition:border-color .2s}
-.ti:hover{border-color:var(--ac)}
-.ti-info{flex:1;min-width:200px}
-.ti-info h4{font-size:15px;font-weight:600;margin-bottom:4px}
-.ti-meta{font-size:12px;color:var(--muted);margin-bottom:6px}
-.ti-code{font-family:'Syne',monospace;font-size:20px;font-weight:800;color:var(--gold);letter-spacing:2px}
-.ti-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-on{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
-.badge-off{background:rgba(244,81,74,0.15);color:var(--red);border:1px solid rgba(244,81,74,0.3)}
-.tag{display:inline-block;background:rgba(79,142,247,0.1);color:var(--ac);padding:3px 10px;border-radius:20px;font-size:11px;margin:2px}
-.star{font-size:22px;cursor:pointer;transition:transform .2s;line-height:1;padding-top:2px}
-.star:hover{transform:scale(1.2)}
-
-/* ===== SEARCH ===== */
-.search-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.search-row input{flex:1;min-width:180px;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:14px;outline:none}
-.search-row input:focus{border-color:var(--ac)}
-.filter-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.chip{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--s2);transition:all .2s}
-.chip.active,.chip:hover{background:var(--ac);border-color:var(--ac);color:#fff}
-
-/* ===== QUESTION EDITOR ===== */
-.qe{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:10px;position:relative}
-.qe-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.qe-type{font-size:12px;color:var(--muted);font-weight:600}
-.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.drag-handle{cursor:grab;color:var(--muted);font-size:18px;padding:0 4px}
-
-/* ===== QUIZ ===== */
-.qz-header{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.qz-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
-.qz-prog{flex:1;min-width:140px;margin:0 16px}
-.progress-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:3px;transition:width .4s}
-.timer{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;padding:6px 16px;background:var(--s2);border-radius:var(--rs);border:1px solid var(--border);transition:all .3s}
-.timer.warn{color:var(--gold);border-color:rgba(245,185,66,0.4);animation:pulse 1s infinite}
-.timer.danger{color:var(--red);border-color:rgba(244,81,74,0.4);animation:pulse .5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.qz-body{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:28px}
-.qz-q{font-size:18px;font-weight:500;margin-bottom:22px;line-height:1.6}
-.qz-q .qnum{font-family:'Syne',sans-serif;font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--rs);margin-bottom:10px;cursor:pointer;transition:all .2s;font-size:15px}
-.opt:hover{border-color:var(--ac);background:rgba(79,142,247,0.07)}
-.opt.sel{border-color:var(--ac);background:rgba(79,142,247,0.12)}
-.opt.msel{border-color:var(--purple);background:rgba(167,139,250,0.1)}
-.opt-ltr{width:32px;height:32px;border-radius:8px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
-.opt.sel .opt-ltr{background:var(--ac);color:#fff}
-.opt.msel .opt-ltr{background:var(--purple);color:#fff}
-.match-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.match-left{flex:1;padding:12px;background:var(--s2);border-radius:var(--rs);font-size:14px;border:1px solid var(--border)}
-.match-sel{padding:10px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:13px;min-width:130px}
-.match-sel:focus{border-color:var(--ac);outline:none}
-.open-inp{width:100%;padding:14px;background:var(--s2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:16px;margin-top:4px;outline:none}
-.open-inp:focus{border-color:var(--ac)}
-.qz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px}
-.qz-skip{font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline}
-
-/* ===== RESULT ===== */
-.result-hero{text-align:center;padding:32px 0 24px}
-.result-grade{font-family:'Syne',sans-serif;font-size:80px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--gold),var(--ac));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.result-percent{font-size:22px;color:var(--muted);margin-top:4px}
-.result-desc{font-size:18px;margin-top:12px;font-weight:500}
-.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
-.rs-item{background:var(--s2);border-radius:var(--rs);padding:16px;text-align:center}
-.rs-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
-.rs-lbl{font-size:12px;color:var(--muted);margin-top:2px}
-
-/* ===== REVIEW ===== */
-.rev-item{background:var(--s2);border-radius:var(--rs);padding:16px;margin-bottom:10px;border-left:4px solid var(--border)}
-.rev-item.ok{border-left-color:var(--green)}
-.rev-item.err{border-left-color:var(--red)}
-.rev-q{font-size:14px;margin-bottom:8px;line-height:1.5}
-.rev-ans{font-size:13px;margin-top:4px}
-.rev-ans.correct{color:var(--green)}
-.rev-ans.wrong{color:var(--red)}
-.rev-comment{font-size:12px;color:var(--muted);margin-top:6px;padding:8px;background:var(--s3);border-radius:6px}
-
-/* ===== MODAL ===== */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.modal-box{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:28px;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;animation:mfade .25s}
-@keyframes mfade{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.modal-head h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
-.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
-.modal-close:hover{color:var(--text)}
-
-/* ===== RESULTS TABLE ===== */
-.rtable{width:100%;border-collapse:collapse;font-size:13px}
-.rtable th{padding:8px 12px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
-.rtable td{padding:10px 12px;border-bottom:1px solid var(--border)}
-.rtable tr:last-child td{border-bottom:none}
-.rtable tr:hover td{background:var(--s2)}
-.rank-badge{display:inline-block;width:24px;height:24px;border-radius:6px;text-align:center;line-height:24px;font-size:12px;font-weight:700}
-.r1{background:rgba(245,185,66,.2);color:var(--gold)}
-.r2{background:rgba(192,192,192,.2);color:#ccc}
-.r3{background:rgba(205,127,50,.2);color:#cd7f32}
-
-/* ===== MATH PREVIEW ===== */
-.math-preview{background:var(--s3);border-radius:var(--rs);padding:10px 14px;margin-top:6px;font-size:14px;min-height:32px;color:var(--text)}
-.formula-hint{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* ===== TOAST ===== */
-.toasts{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
-.toast{background:var(--s1);border:1px solid var(--border);border-left:4px solid var(--ac);padding:12px 18px;border-radius:var(--rs);font-size:14px;animation:tslide .3s;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:280px}
-.toast.success{border-left-color:var(--green)}
-.toast.error{border-left-color:var(--red)}
-@keyframes tslide{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
-
-/* ===== CHART ===== */
-.chart-wrap{max-width:500px;margin:0 auto;padding:10px 0}
-
-/* ===== IMPORT AREA ===== */
-.drop-zone{border:2px dashed var(--border);border-radius:var(--rs);padding:32px;text-align:center;cursor:pointer;transition:all .2s}
-.drop-zone:hover,.drop-zone.drag{border-color:var(--ac);background:rgba(79,142,247,0.05)}
-.drop-zone p{color:var(--muted);font-size:14px}
-
-/* ===== SHUFFLE TOGGLE ===== */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
-.toggle-row:last-child{border-bottom:none}
-.toggle-row label{font-size:14px}
-.switch{position:relative;width:42px;height:24px;flex-shrink:0}
-.switch input{opacity:0;width:0;height:0}
-.slider{position:absolute;inset:0;background:var(--s3);border-radius:12px;cursor:pointer;transition:.3s}
-.slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
-.switch input:checked+.slider{background:var(--ac)}
-.switch input:checked+.slider::before{transform:translateX(18px)}
-
-/* ===== BACKUP / EXPORT ===== */
-.backup-row{display:flex;gap:10px;flex-wrap:wrap;padding:14px;background:var(--s2);border-radius:var(--rs);border:1px solid var(--border);align-items:center}
-.backup-row p{flex:1;font-size:13px;color:var(--muted)}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:640px){
-  .home-grid{grid-template-columns:1fr}
-  .opts-grid{grid-template-columns:1fr}
-  .stats-bar{grid-template-columns:1fr 1fr}
-  .result-stats{grid-template-columns:1fr 1fr}
-  .result-grade{font-size:60px}
-  .qz-prog{display:none}
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: rgba(255,255,255,0.08);
+    --radius: 24px;
+    --radius-sm: 12px;
+  }
+  body.light {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: rgba(0,0,0,0.1);
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; transition: all 0.3s; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  
+  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px; }
+  .logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .vortex-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 26px; color: white; box-shadow: 0 4px 20px rgba(59,130,246,0.4); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{box-shadow:0 4px 20px rgba(59,130,246,0.4)} 50%{box-shadow:0 4px 40px rgba(59,130,246,0.8)} }
+  .logo-text h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+  .logo-text p { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  .theme-toggle { background: var(--surface2); border: 1px solid var(--border); border-radius: 30px; padding: 8px 16px; cursor: pointer; display: flex; gap: 8px; }
+  
+  .hidden { display: none !important; }
+  .panel { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .panel-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  
+  .btn { padding: 10px 20px; border-radius: var(--radius-sm); border: none; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; box-shadow: 0 2px 10px rgba(59,130,246,0.3); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-success { background: var(--green); color: white; }
+  .btn-warning { background: var(--gold); color: white; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn:hover { transform: translateY(-2px); }
+  
+  .mode-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .mode-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius); padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+  .mode-card:hover { transform: translateY(-8px); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .mode-icon { font-size: 56px; margin-bottom: 16px; }
+  .mode-card h2 { font-size: 28px; margin-bottom: 8px; }
+  
+  .test-list { display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; }
+  .test-item { background: var(--surface2); border-radius: var(--radius-sm); padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; transition: all 0.2s; }
+  .test-item:hover { transform: scale(1.01); }
+  .test-code { font-family: monospace; font-size: 20px; font-weight: 800; color: var(--gold); letter-spacing: 2px; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-active { background: rgba(16,185,129,0.2); color: var(--green); border: 1px solid var(--green); }
+  .badge-inactive { background: rgba(239,68,68,0.2); color: var(--red); border: 1px solid var(--red); }
+  .favorite-star { font-size: 28px; cursor: pointer; color: var(--gold); transition: all 0.2s; }
+  
+  .input-group { margin-bottom: 16px; }
+  label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  input, textarea, select { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: inherit; font-size: 14px; }
+  .search-box input { background: var(--surface2); }
+  
+  .option-btn { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface2); border: 2px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; cursor: pointer; width: 100%; text-align: left; color: var(--text); transition: all 0.2s; }
+  .option-btn:hover { transform: translateX(5px); }
+  .option-btn.selected { border-color: var(--accent); background: rgba(59,130,246,0.15); }
+  .match-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .match-left { flex: 1; padding: 12px; background: var(--surface2); border-radius: var(--radius-sm); font-weight: 500; }
+  .match-select { width: 140px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); }
+  
+  .timer-danger { animation: pulse 0.8s infinite; color: var(--red); font-weight: 800; }
+  .timer-warning { animation: pulse 1.5s infinite; color: var(--gold); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  
+  .review-item { background: var(--surface2); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; border-left: 4px solid; }
+  .review-correct { color: var(--green); }
+  .review-wrong { color: var(--red); }
+  
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+  .modal-content { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  
+  @media (max-width: 768px) { .mode-selector { grid-template-columns: 1fr; } .match-row { flex-direction: column; align-items: stretch; } .match-select { width: 100%; } }
+  @media print { body { background: white; } .btn, .theme-toggle, .mode-selector, .panel-header button { display: none; } .panel { background: white; border: 1px solid #ddd; } }
+  
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border-left: 4px solid var(--accent); padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-<!-- HEADER -->
-<div class="hdr">
-  <div class="logo" onclick="goHome()">
-    <div class="logo-icon">📚
-    </div>
-    <div class="logo-text">
-      <h1>Vortex</h1>
-      <p>Системаи пурраи тестӣ</p>
-    </div>
-  </div>
-  <div class="hdr-right">
-    <div id="userChip" class="user-chip hidden"></div>
-    <button class="theme-btn" onclick="toggleTheme()">🌓</button>
-  </div>
-</div>
-
-<!-- ========== HOME ========== -->
-<div id="pgHome">
-  <div class="home-grid">
-    <div class="home-card" onclick="showTeacherLogin()">
-      <span class="hci">👨‍🏫</span>
-      <h2>Устод</h2>
-      <p>Эҷоди тест, идоракунии саволҳо, дидани натиҷаҳо ва оморҳо</p>
-    </div>
-    <div class="home-card" onclick="showStudentPanel()">
-      <span class="hci">👩‍🎓</span>
-      <h2>Талаба</h2>
-      <p>Воридшавӣ бо рамзи тест ва иҷрои тест</p>
-    </div>
-  </div>
-</div>
-
-<!-- ========== TEACHER AUTH ========== -->
-<div id="pgAuth" class="hidden">
-  <div class="panel" style="max-width:440px;margin:0 auto">
-    <div class="ph">
-      <div><div class="pt" id="authTitle">🔑 Воридшавӣ</div></div>
-      <button class="btn bo btn-sm" onclick="goHome()">← Бозгашт</button>
-    </div>
-    <div class="ig"><label>Номи корбарӣ</label><input id="authUser" placeholder="username" autocomplete="username"></div>
-    <div class="ig"><label>Парол</label><input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password"></div>
-    <div class="ig hidden" id="authPass2Wrap"><label>Такрори парол</label><input type="password" id="authPass2" placeholder="••••••••"></div>
-    <div class="btn-row">
-      <button class="btn bp" id="authBtn" onclick="doAuth()">Ворид шавед</button>
-      <button class="btn bo" id="authSwitch" onclick="switchAuthMode()">Сабти ном</button>
-    </div>
-  </div>
-</div>
-
-<!-- ========== TEACHER DASHBOARD ========== -->
-<div id="pgTeacher" class="hidden">
-  <div id="statsBar" class="stats-bar"></div>
-  <div class="panel">
-    <div class="ph">
-      <div><div class="pt">📋 Тестҳои ман</div></div>
-      <div class="btn-row">
-        <button class="btn bp btn-sm" onclick="openCreateTest()">+ Тести нав</button>
-        <button class="btn bo btn-sm" onclick="openImportModal()">📥 Импорт</button>
-        <button class="btn bo btn-sm" onclick="exportAllData()">💾 Backup</button>
-        <button class="btn bo btn-sm" onclick="openSettings()">⚙️</button>
-        <button class="btn bo btn-sm" onclick="logoutTeacher()">🚪</button>
+<div class="container">
+  <div class="main-header">
+    <div class="logo-area" onclick="backToMenu()">
+      <div class="vortex-icon book-icon">
+        <div class="book-spine"></div>
+        <div class="book-cover"></div>
+        <div class="book-pages">📚</div>
       </div>
+      <div class="logo-text"><h1>VORTEX</h1><p>EXAM SYSTEM | CLOUD READY</p></div>
     </div>
-    <div class="search-row">
-      <input id="srch" placeholder="🔍 Ҷустуҷӯ..." oninput="renderTests()">
-      <button class="btn bo btn-sm" onclick="filterActive('all')">Ҳама</button>
-      <button class="btn bo btn-sm" onclick="filterActive('active')">Фаъол</button>
-      <button class="btn bo btn-sm" onclick="filterActive('fav')">⭐ Дӯстдошта</button>
-    </div>
-    <div class="test-list" id="teacherList"></div>
+    <div class="theme-toggle" onclick="toggleTheme()"><span>🌙</span><span>☀️</span></div>
   </div>
-</div>
 
-<!-- ========== TEST EDITOR ========== -->
-<div id="pgEditor" class="hidden">
-  <div class="panel">
-    <div class="ph">
-      <div><div class="pt" id="editorTitle">✏️ Таҳрири тест</div></div>
-      <button class="btn bo btn-sm" onclick="backToDash()">← Бозгашт</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap">
-      <div class="ig"><label>Номи тест</label><input id="tName" placeholder="Химия 10 - Тест №1"></div>
-      <div class="ig"><label>Вақт (дақиқа)</label><input type="number" id="tTime" value="30" min="1" max="300"></div>
-      <div class="ig"><label>Санаи охирин</label><input type="date" id="tExpiry"></div>
-      <div class="ig"><label>Тегҳо (бо вергул)</label><input id="tTags" placeholder="Химия, 10-синф"></div>
-    </div>
-    <div class="toggle-row">
-      <label>Омехта кардани тартиби саволҳо</label>
-      <label class="switch"><input type="checkbox" id="tShuffle"><span class="slider"></span></label>
-    </div>
-    <div class="toggle-row">
-      <label>Омехта кардани вариантҳои ҷавоб</label>
-      <label class="switch"><input type="checkbox" id="tShuffleOpts"><span class="slider"></span></label>
-    </div>
-    <div class="toggle-row">
-      <label>Маҳдуд кардани иҷрошавӣ (1 бор)</label>
-      <label class="switch"><input type="checkbox" id="tOneAttempt"><span class="slider"></span></label>
-    </div>
-    <div style="margin:20px 0">
-      <div class="ph"><div class="pt" style="font-size:16px">📝 Саволҳо (<span id="qCount">0</span>)</div><button class="btn bo btn-sm" onclick="openQModal()">+ Савол</button></div>
-      <div id="qList"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn bp" onclick="saveTest()">💾 Захира</button>
-      <button class="btn bo" onclick="cloneTest()">📋 Нусха</button>
-      <button class="btn bo" onclick="exportTest()">📤 Экспорт</button>
-      <button class="btn bd" onclick="deleteTest()">🗑 Нест</button>
+  <div id="mainMenu">
+    <div class="mode-selector">
+      <div class="mode-card" onclick="showTeacherLogin()"><div class="mode-icon">👨‍🏫</div><h2>УСТОД</h2><p>Эҷоди тест • Идоракунӣ • Аналитика</p></div>
+      <div class="mode-card" onclick="showStudentPanel()"><div class="mode-icon">👩‍🎓</div><h2>ТАЛАБА</h2><p>Иҷрои тест • Санҷиши дониш</p></div>
     </div>
   </div>
-</div>
 
-<!-- ========== STUDENT PANEL ========== -->
-<div id="pgStudent" class="hidden">
-  <div class="panel" style="max-width:460px;margin:0 auto">
-    <div class="ph">
-      <div><div class="pt">👩‍🎓 Иҷрои тест</div></div>
-      <button class="btn bo btn-sm" onclick="goHome()">← Бозгашт</button>
-    </div>
-    <div class="ig"><label>Рамзи тест</label><input id="sCode" placeholder="ABCD12" maxlength="6" style="text-transform:uppercase;font-size:22px;font-family:'Syne',monospace;letter-spacing:4px;font-weight:800"></div>
-    <div class="ig"><label>Номи шумо</label><input id="sName" placeholder="Исм Насаб"></div>
-    <button class="btn bp" style="width:100%;margin-top:4px" onclick="startStudent()">🚀 Оғози тест</button>
-  </div>
-</div>
+  <div id="teacherAuth" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title" id="authTitle">🔐 VORTEX ACCESS</div><button class="btn btn-outline" onclick="backToMenu()">Бозгашт</button></div>
+    <div class="input-group"><label>Номи корбарӣ:</label><input type="text" id="authUsername" placeholder="Username"></div>
+    <div class="input-group"><label>Парол:</label><input type="password" id="authPassword" placeholder="Password"></div>
+    <div class="input-group hidden" id="confirmPasswordGroup"><label>Такрори парол:</label><input type="password" id="confirmPassword"></div>
+    <button class="btn btn-primary" id="authBtn" onclick="handleAuth()">Ворид шудан</button>
+    <div id="authSwitch" style="margin-top:12px; text-align:center"><span style="color:var(--muted)">Ҳисоб надоред?</span> <button class="btn btn-sm btn-outline" onclick="switchAuthMode()">Сабти ном</button></div>
+  </div></div>
 
-<!-- ========== QUIZ SCREEN ========== -->
-<div id="pgQuiz" class="hidden">
-  <div class="qz-header">
-    <div class="qz-title" id="qzTitle">Тест</div>
-    <div class="qz-prog">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px" id="qzProgText"></div>
-      <div class="progress-bar"><div class="progress-fill" id="qzFill" style="width:0%"></div></div>
-    </div>
-    <div class="timer" id="qzTimer">30:00</div>
-  </div>
-  <div class="qz-body">
-    <div id="qzContent"></div>
-    <div class="qz-nav">
-      <span class="qz-skip" onclick="skipQuestion()">Гузаштан →</span>
-      <button class="btn bp" id="qzNext" onclick="nextQuestion()">Ҷавоб додан →</button>
-    </div>
-  </div>
-</div>
+  <div id="teacherPanel" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title">👨‍🏫 DASHBOARD | <span id="teacherUsername"></span></div><div><button class="btn btn-sm btn-outline" onclick="changePassword()">🔑 Тағйири парол</button><button class="btn btn-sm btn-outline" onclick="logoutTeacher()">Хуруҷ</button></div></div>
+    <div class="search-box"><input type="text" id="searchTests" placeholder="🔍 Ҷустуҷӯи тестҳо..." onkeyup="filterTests()" style="width:100%; padding:12px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text)"></div>
+    <div style="margin: 16px 0; display: flex; gap: 12px; flex-wrap:wrap;"><button class="btn btn-primary" onclick="openCreateTestModal()">➕ Эҷоди тести нав</button><button class="btn btn-outline" onclick="openImportModal()">📥 Импорт</button></div>
+    <div class="test-list" id="teacherTestsList"></div>
+  </div></div>
 
-<!-- ========== RESULT SCREEN ========== -->
-<div id="pgResult" class="hidden">
-  <div class="panel">
-    <div class="ph">
-      <div class="pt" id="resTitle">Натиҷа</div>
-      <div class="btn-row">
-        <button class="btn bo btn-sm" onclick="showReview()">📖 Хатоҳо</button>
-        <button class="btn bo btn-sm" onclick="printResult()">🖨 Чоп</button>
-        <button class="btn bo btn-sm" onclick="goHome()">🏠 Хона</button>
-      </div>
-    </div>
-    <div id="resContent"></div>
-  </div>
-</div>
+  <div id="testEditor" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title" id="editorTitle">✏️ ТАҲРИРИ ТЕСТ</div><button class="btn btn-outline" onclick="backToTeacherPanel()">Бозгашт</button></div>
+    <div class="input-group"><label>Номи тест:</label><input type="text" id="testName" placeholder="Масалан: Алгебра 10 - Муодилаҳо"></div>
+    <div class="input-group"><label>Вақт (дақиқа):</label><input type="number" id="testTime" value="30" min="1" max="180"></div>
+    <div class="input-group"><label>Тегҳо:</label><input type="text" id="testTags" placeholder="алгебра,10-синф"></div>
+    <div style="margin: 20px 0;"><h3>📝 САВОЛҲО</h3><div id="questionsList"></div><button class="btn btn-outline" onclick="addQuestion()">+ Иловаи савол</button></div>
+    <div style="display: flex; gap: 12px; flex-wrap:wrap;"><button class="btn btn-primary" onclick="saveTest()">💾 Захира</button><button class="btn btn-warning" onclick="cloneTest()">📋 Нусха</button><button class="btn btn-success" onclick="exportTest()">📤 Экспорт</button><button class="btn btn-danger" onclick="deleteCurrentTest()">🗑 Нест</button></div>
+  </div></div>
 
-<!-- ========== MODALS ========== -->
+  <div id="studentPanel" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title">🎓 STUDENT ACCESS</div><button class="btn btn-outline" onclick="backToMenu()">Бозгашт</button></div>
+    <div class="input-group"><label>Рамзи тест:</label><input type="text" id="studentCode" maxlength="6" style="text-transform:uppercase; font-size:24px; text-align:center; letter-spacing:4px"></div>
+    <div class="input-group"><label>Номи шумо:</label><input type="text" id="studentName" placeholder="Ном ва фамилия"></div>
+    <button class="btn btn-primary" onclick="startStudentTest()" style="width:100%; padding:16px; font-size:18px;">🚀 ОҒОЗИ ТЕСТ</button>
+  </div></div>
 
-<!-- Question Modal -->
-<div id="mQuestion" class="modal hidden">
-<div class="modal-box">
-  <div class="modal-head">
-    <h3 id="mQTitle">Иловаи савол</h3>
-    <button class="modal-close" onclick="closeQModal()">✕</button>
-  </div>
-  <div class="ig">
-    <label>Намуди савол</label>
-    <select id="qType" onchange="renderQForm()">
-      <option value="closed">📘 Пӯшида (як ҷавоб)</option>
-      <option value="multi">🎯 Бисёрҷавоба</option>
-      <option value="match">🔗 Мувофиқат</option>
-      <option value="open">💡 Кушода</option>
-    </select>
-  </div>
-  <div id="qFormFields"></div>
-  <div class="ig" style="margin-top:14px">
-    <label>Шарҳ / Маслиҳат (ихтиёрӣ)</label>
-    <textarea id="qComment" rows="2" placeholder="Шарҳ барои талаба..."></textarea>
-  </div>
-  <div class="ig">
-    <label>Холҳо барои ин савол</label>
-    <input type="number" id="qPoints" value="1" min="1" max="20">
-  </div>
-  <div class="btn-row" style="margin-top:8px">
-    <button class="btn bp" onclick="saveQuestion()">💾 Сабт</button>
-    <button class="btn bo" onclick="closeQModal()">Бекор</button>
-  </div>
-</div>
-</div>
+  <div id="quizScreen" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title" id="quizTitle">VORTEX EXAM</div><div><span id="quizTimer" style="font-size:24px; font-weight:800; font-family:monospace">00:00</span></div></div>
+    <div id="quizContent"></div><button class="btn btn-primary" id="quizNextBtn" style="width:100%; margin-top:16px; padding:16px; font-size:16px;">Ҷавоб додан →</button>
+  </div></div>
 
-<!-- Results Modal -->
-<div id="mResults" class="modal hidden">
-<div class="modal-box" style="max-width:800px">
-  <div class="modal-head">
-    <h3 id="mResTitle">📊 Натиҷаҳо</h3>
-    <button class="modal-close" onclick="closeResultsModal()">✕</button>
-  </div>
-  <div class="chart-wrap"><canvas id="resChart"></canvas></div>
-  <div style="margin:18px 0">
-    <div class="pt" style="font-size:16px;margin-bottom:10px">🏆 Топ-10</div>
-    <div id="rankingDiv"></div>
-  </div>
-  <div>
-    <div class="pt" style="font-size:16px;margin-bottom:10px">📋 Ҳамаи натиҷаҳо</div>
-    <table class="rtable"><thead><tr><th>#</th><th>Талаба</th><th>Сана</th><th>Холҳо</th><th>Фоиз</th><th>Баҳо</th><th></th></tr></thead>
-    <tbody id="resTbody"></tbody></table>
-  </div>
-  <div class="btn-row" style="margin-top:16px">
-    <button class="btn bo btn-sm" onclick="exportCSV()">📄 CSV</button>
-    <button class="btn bo btn-sm" onclick="printResults()">🖨 Чоп</button>
-    <button class="btn bd btn-sm" onclick="clearResults()">🗑 Тоза кардан</button>
-  </div>
-</div>
-</div>
+  <div id="resultScreen" class="hidden"><div class="panel"><div class="panel-header"><div class="panel-title" id="resultTitle">📊 НАТИҶА</div><button class="btn btn-outline" onclick="backToMenu()">Хона</button></div>
+    <div id="resultContent"></div><div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap"><button class="btn btn-outline" onclick="showStudentReview()">📖 Хатоҳо</button><button class="btn btn-success" onclick="generatePDFCertificate()">📄 PDF Сертификат</button><button class="btn btn-outline" onclick="window.print()">🖨 Чоп</button></div>
+  </div></div>
 
-<!-- Import Modal -->
-<div id="mImport" class="modal hidden">
-<div class="modal-box" style="max-width:440px">
-  <div class="modal-head"><h3>📥 Импорти тест</h3><button class="modal-close" onclick="closeImportModal()">✕</button></div>
-  <div class="drop-zone" id="dropZone" onclick="document.getElementById('impFile').click()" ondragover="e=>{e.preventDefault();this.classList.add('drag')}" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
-    <div style="font-size:40px;margin-bottom:8px">📁</div>
-    <p>JSON файлро интихоб кунед ё кашед</p>
-    <p style="font-size:11px;margin-top:4px">Танҳо .json файлҳо</p>
-  </div>
-  <input type="file" id="impFile" accept=".json" style="display:none" onchange="doImport(this)">
-  <div style="margin-top:12px">
-    <p style="font-size:12px;color:var(--muted);margin-bottom:6px">Ё барои бозгардонии ҳамаи маълумот:</p>
-    <input type="file" id="impRestore" accept=".json" style="display:none" onchange="doRestore(this)">
-    <button class="btn bo btn-sm" onclick="document.getElementById('impRestore').click()">🔄 Restore Backup</button>
-  </div>
-  <div class="btn-row" style="margin-top:12px"><button class="btn bo" onclick="closeImportModal()">Бекор</button></div>
+  <div id="importModal" class="modal-overlay hidden"><div class="modal-content"><h3>📥 ИМПОРТИ ТЕСТ</h3><input type="file" id="importFile" accept=".json"><div style="margin-top:20px"><button class="btn btn-primary" onclick="importTest()">Импорт</button><button class="btn btn-outline" onclick="closeImportModal()">Бекор</button></div></div></div>
+  <div id="questionModal" class="modal-overlay hidden"><div class="modal-content"><div class="panel-header"><h3 id="modalTitle">Савол</h3><button class="btn btn-outline" onclick="closeQuestionModal()">✖</button></div>
+    <div class="input-group"><label>Намуд:</label><select id="questionType" onchange="changeQuestionType()"><option value="closed">Пӯшида</option><option value="multi">Бисёрҷавоба</option><option value="match">Мувофиқат</option><option value="open">Кушода</option></select></div>
+    <div id="questionTypeFields"></div><div class="input-group"><label>Шарҳ:</label><textarea id="questionComment" rows="2" placeholder="Шарҳи ҷавоб..."></textarea></div>
+    <div style="display:flex; gap:12px; margin-top:20px"><button class="btn btn-primary" onclick="saveCurrentQuestion()">Сабт</button><button class="btn btn-outline" onclick="closeQuestionModal()">Бекор</button></div>
+  </div></div>
+  <div id="resultsModal" class="modal-overlay hidden"><div class="modal-content" style="max-width:800px"><div class="panel-header"><h3 id="resultsModalTitle">📊 АНАЛИТИКА</h3><button class="btn btn-outline" onclick="closeResultsModal()">✖</button></div>
+    <canvas id="resultsChart" style="max-height:300px"></canvas><div><h4>🏆 РЕЙТИНГ</h4><div id="rankingList"></div></div>
+    <div class="results-table"><table style="width:100%" id="resultsTable"><thead><tr><th>Талаба</th><th>Сана</th><th>Хол</th><th>Фоиз</th><th>Баҳо</th></tr></thead><tbody id="resultsTableBody"></tbody></table></div>
+    <div style="margin-top:16px"><button class="btn btn-outline" onclick="exportResultsToCSV()">📄 Export CSV</button></div>
+  </div></div>
 </div>
-</div>
-
-<!-- Settings Modal -->
-<div id="mSettings" class="modal hidden">
-<div class="modal-box" style="max-width:440px">
-  <div class="modal-head"><h3>⚙️ Танзимот</h3><button class="modal-close" onclick="closeMod('mSettings')">✕</button></div>
-  <div class="ig"><label>Тағйири парол</label><input type="password" id="newPass" placeholder="Пароли нав (≥4 аломат)"></div>
-  <div class="ig"><label>Такрори парол</label><input type="password" id="newPass2" placeholder="Такрор..."></div>
-  <div class="btn-row">
-    <button class="btn bp" onclick="changePassword()">Тағйир додан</button>
-    <button class="btn bo" onclick="closeMod('mSettings')">Бекор</button>
-  </div>
-  <hr style="border-color:var(--border);margin:16px 0">
-  <div class="backup-row">
-    <p>Ҳамаи тестҳо ва натиҷаҳоро боргирӣ кунед</p>
-    <button class="btn bo btn-sm" onclick="exportAllData()">💾 Backup</button>
-  </div>
-</div>
-</div>
-
-<!-- Toast container -->
-<div class="toasts" id="toasts"></div>
-
-</div><!-- /wrap -->
 
 <script>
-// ===================== CRYPTO HELPERS =====================
-async function hashPass(pass){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pass));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+// ==================== DATA ====================
+let teachers = [];
+let tests = [];
+let currentTeacher = null;
+let currentTestId = null;
+let currentEditingQuestionIndex = null;
+let currentStudentTest = null;
+let currentStudentAnswers = [];
+let currentStudentName = '';
+let quizTimerInterval = null;
+let quizTimeLeft = 0;
+let quizCurrentIndex = 0;
+let resultsChart = null;
+let currentResultsTestId = null;
+let quizActive = false;
+let fraudWarningShown = false;
 
-// ===================== STORAGE =====================
-function loadData(){
-  teachers=JSON.parse(localStorage.getItem('ct_teachers')||'[]');
-  tests=JSON.parse(localStorage.getItem('ct_tests')||'[]');
-}
-function saveData(){
-  localStorage.setItem('ct_teachers',JSON.stringify(teachers));
-  localStorage.setItem('ct_tests',JSON.stringify(tests));
-}
-let teachers=[],tests=[];
-loadData();
-
-// ===================== STATE =====================
-let curTeacher=null,curTestId=null,curQIdx=null,filterMode='all';
-let quizTest=null,quizAnswers=[],quizName='',quizTimer=null,quizTimeLeft=0,quizIdx=0;
-let multiSel=[],lastResults=null,resChart=null,curResTestId=null;
-let authMode='login';
-
-// ===================== THEME =====================
-function toggleTheme(){document.body.classList.toggle('light');localStorage.setItem('ct_theme',document.body.classList.contains('light')?'light':'dark')}
-if(localStorage.getItem('ct_theme')==='light')document.body.classList.add('light');
-
-// ===================== TOAST =====================
-function toast(msg,type='info'){
-  const d=document.createElement('div');
-  d.className='toast '+(type==='ok'?'success':type==='err'?'error':'');
-  d.innerHTML=msg;
-  document.getElementById('toasts').appendChild(d);
-  setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(110%)';d.style.transition='all .3s';setTimeout(()=>d.remove(),300)},2800);
-}
-
-// ===================== PAGE SWITCH =====================
-const pages=['pgHome','pgAuth','pgTeacher','pgEditor','pgStudent','pgQuiz','pgResult'];
-function showPage(id){pages.forEach(p=>document.getElementById(p).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
-function goHome(){if(quizTimer)clearInterval(quizTimer);showPage('pgHome');updateUserChip()}
-function updateUserChip(){
-  const c=document.getElementById('userChip');
-  if(curTeacher){c.classList.remove('hidden');c.innerHTML=`👨‍🏫 <span>${esc(curTeacher.username)}</span>`}
-  else{c.classList.add('hidden')}
-}
-
-// ===================== AUTH =====================
-function showTeacherLogin(){
-  authMode='login';
-  document.getElementById('authTitle').textContent='🔑 Воридшавӣ';
-  document.getElementById('authBtn').textContent='Ворид шавед';
-  document.getElementById('authSwitch').textContent='Сабти ном';
-  document.getElementById('authPass2Wrap').classList.add('hidden');
-  document.getElementById('authUser').value='';
-  document.getElementById('authPass').value='';
-  showPage('pgAuth');
-}
-function switchAuthMode(){
-  authMode=authMode==='login'?'register':'login';
-  const isReg=authMode==='register';
-  document.getElementById('authTitle').textContent=isReg?'📝 Сабти ном':'🔑 Воридшавӣ';
-  document.getElementById('authBtn').textContent=isReg?'Сабти ном':'Ворид шавед';
-  document.getElementById('authSwitch').textContent=isReg?'Ворид шавед':'Сабти ном';
-  document.getElementById('authPass2Wrap').classList.toggle('hidden',!isReg);
-}
-async function doAuth(){
-  const u=document.getElementById('authUser').value.trim();
-  const p=document.getElementById('authPass').value;
-  if(!u||!p){toast('Майдонҳоро пур кунед!','err');return}
-  const h=await hashPass(p);
-  if(authMode==='register'){
-    const p2=document.getElementById('authPass2').value;
-    if(p!==p2){toast('Паролҳо мувофиқат намекунанд!','err');return}
-    if(p.length<4){toast('Парол ≥ 4 аломат!','err');return}
-    if(teachers.find(t=>t.username===u)){toast('Ин ном аллакай мавҷуд!','err');return}
-    teachers.push({username:u,password:h,favorites:[]});
-    saveData();
-    toast('Сабт шуд! Акнун ворид шавед','ok');
-    switchAuthMode();
-  } else {
-    const usr=teachers.find(t=>t.username===u&&t.password===h);
-    if(!usr){toast('Номи корбарӣ ё парол нодуруст!','err');return}
-    curTeacher=usr;
-    updateUserChip();
-    showPage('pgTeacher');
-    renderStats();
-    renderTests();
-  }
-}
-function logoutTeacher(){curTeacher=null;updateUserChip();goHome()}
-async function changePassword(){
-  const p=document.getElementById('newPass').value;
-  const p2=document.getElementById('newPass2').value;
-  if(!p||p.length<4){toast('Парол ≥ 4 аломат!','err');return}
-  if(p!==p2){toast('Паролҳо мувофиқат намекунанд!','err');return}
-  curTeacher.password=await hashPass(p);
-  saveData();
-  toast('Парол тағйир ёфт!','ok');
-  closeMod('mSettings');
-}
-
-// ===================== STATS =====================
-function renderStats(){
-  const myTests=tests.filter(t=>t.teacherId===curTeacher.username);
-  const total=myTests.length;
-  const active=myTests.filter(t=>t.isActive).length;
-  const results=myTests.reduce((a,t)=>a+(t.results?.length||0),0);
-  const avg=results?Math.round(myTests.reduce((a,t)=>a+(t.results||[]).reduce((s,r)=>s+r.percent,0),0)/results):0;
-  document.getElementById('statsBar').innerHTML=`
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">Ҳамаги тестҳо</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${active}</div><div class="stat-lbl">Фаъол</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--purple)">${results}</div><div class="stat-lbl">Иҷрошавӣ</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--gold)">${avg}%</div><div class="stat-lbl">Миёнаи фоиз</div></div>`;
-}
-
-// ===================== TEST LIST =====================
-function filterActive(m){filterMode=m;renderTests()}
-function renderTests(){
-  const q=(document.getElementById('srch')?.value||'').toLowerCase();
-  let list=tests.filter(t=>t.teacherId===curTeacher.username);
-  if(q)list=list.filter(t=>t.name.toLowerCase().includes(q)||(t.tags||[]).some(tg=>tg.toLowerCase().includes(q)));
-  if(filterMode==='active')list=list.filter(t=>t.isActive);
-  if(filterMode==='fav')list=list.filter(t=>curTeacher.favorites?.includes(t.id));
-  const el=document.getElementById('teacherList');
-  if(!list.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted)">Ҳеҷ тест нест</div>';return}
-  el.innerHTML=list.map(t=>`
-    <div class="ti">
-      <span class="star" onclick="toggleFav(${t.id})">${curTeacher.favorites?.includes(t.id)?'⭐':'☆'}</span>
-      <div class="ti-info">
-        <h4>${esc(t.name)}</h4>
-        <div class="ti-meta">${t.questions.length} савол · ${t.timeLimit} дақ · ${t.results?.length||0} иҷро ${t.expiryDate?'· 📅 то '+t.expiryDate:''}</div>
-        <div>${(t.tags||[]).map(tg=>`<span class="tag">${esc(tg)}</span>`).join('')}</div>
-        <div style="margin-top:6px"><span class="badge ${t.isActive?'badge-on':'badge-off'}">${t.isActive?'✅ Фаъол':'⛔ Ғайрифаъол'}</span></div>
-        <div class="ti-code" style="margin-top:6px">🔑 ${t.code}</div>
-      </div>
-      <div class="ti-actions">
-        <button class="btn bo btn-xs" onclick="editTest(${t.id})">✏ Таҳрир</button>
-        <button class="btn bo btn-xs" onclick="toggleActive(${t.id})">${t.isActive?'🔴':'🟢'}</button>
-        <button class="btn bo btn-xs" onclick="newCode(${t.id})">🔄 Рамз</button>
-        <button class="btn bo btn-xs" onclick="showResults(${t.id})">📊</button>
-      </div>
-    </div>`).join('');
-}
-function toggleFav(id){
-  if(!curTeacher.favorites)curTeacher.favorites=[];
-  const i=curTeacher.favorites.indexOf(id);
-  if(i>-1)curTeacher.favorites.splice(i,1);else curTeacher.favorites.push(id);
-  saveData();renderTests();
-}
-function toggleActive(id){
-  const t=tests.find(x=>x.id===id);if(!t)return;
-  t.isActive=!t.isActive;saveData();renderTests();renderStats();
-  toast(t.isActive?'Тест фаъол шуд ✅':'Тест ғайрифаъол шуд','ok');
-}
-function newCode(id){
-  const t=tests.find(x=>x.id===id);if(!t)return;
-  t.code=genCode();saveData();renderTests();
-  toast('Рамзи нав: '+t.code,'ok');
-}
-function genCode(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-  let code='';
-  do{code='';for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];
-  }while(tests.some(t=>t.code===code));
-  return code;
-}
-
-// ===================== TEST EDITOR =====================
-function openCreateTest(){
-  curTestId=null;
-  const id=Date.now();
-  const t={id,teacherId:curTeacher.username,name:'Тести нав',timeLimit:30,code:genCode(),questions:[],tags:[],isActive:false,results:[],expiryDate:'',shuffle:false,shuffleOpts:false,oneAttempt:false};
-  tests.push(t);saveData();
-  editTest(id);
-}
-function editTest(id){
-  curTestId=id;
-  const t=tests.find(x=>x.id===id);if(!t)return;
-  document.getElementById('editorTitle').textContent='✏️ '+t.name;
-  document.getElementById('tName').value=t.name;
-  document.getElementById('tTime').value=t.timeLimit;
-  document.getElementById('tExpiry').value=t.expiryDate||'';
-  document.getElementById('tTags').value=(t.tags||[]).join(', ');
-  document.getElementById('tShuffle').checked=t.shuffle||false;
-  document.getElementById('tShuffleOpts').checked=t.shuffleOpts||false;
-  document.getElementById('tOneAttempt').checked=t.oneAttempt||false;
-  renderQList();
-  showPage('pgEditor');
-}
-function backToDash(){showPage('pgTeacher');renderTests();renderStats()}
-function saveTest(){
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  t.name=document.getElementById('tName').value||'Тест';
-  t.timeLimit=parseInt(document.getElementById('tTime').value)||30;
-  t.expiryDate=document.getElementById('tExpiry').value;
-  t.tags=document.getElementById('tTags').value.split(',').map(s=>s.trim()).filter(Boolean);
-  t.shuffle=document.getElementById('tShuffle').checked;
-  t.shuffleOpts=document.getElementById('tShuffleOpts').checked;
-  t.oneAttempt=document.getElementById('tOneAttempt').checked;
-  saveData();toast('Тест захира шуд! 💾','ok');backToDash();
-}
-function deleteTest(){
-  if(!confirm('Нест кардани тест?'))return;
-  // Remove from favorites
-  teachers.forEach(t=>{if(t.favorites)t.favorites=t.favorites.filter(f=>f!==curTestId)});
-  tests=tests.filter(x=>x.id!==curTestId);
-  saveData();toast('Тест нест шуд','ok');backToDash();
-}
-function cloneTest(){
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  const n={...JSON.parse(JSON.stringify(t)),id:Date.now(),name:t.name+' (нусха)',code:genCode(),results:[],isActive:false};
-  tests.push(n);saveData();toast('Нусха сохта шуд!','ok');editTest(n.id);
-}
-function exportTest(){
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  const data=JSON.stringify({name:t.name,timeLimit:t.timeLimit,questions:t.questions,tags:t.tags},null,2);
-  dlJSON(data,t.name.replace(/[^a-z0-9]/gi,'_')+'.json');
-  toast('Тест экспорт шуд!','ok');
-}
-function exportAllData(){
-  const data=JSON.stringify({teachers,tests},null,2);
-  dlJSON(data,'vortex_backup_'+new Date().toISOString().slice(0,10)+'.json');
-  toast('Backup сохта шуд! 💾','ok');
-}
-function dlJSON(data,filename){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
-  a.download=filename;a.click();
-}
-
-// ===================== QUESTION LIST =====================
-function renderQList(){
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  document.getElementById('qCount').textContent=t.questions.length;
-  const el=document.getElementById('qList');
-  if(!t.questions.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted)">Саволе нест. Савол илова кунед!</div>';return}
-  const typeLabel={closed:'📘 Пӯшида',multi:'🎯 Бисёрҷавоба',match:'🔗 Мувофиқат',open:'💡 Кушода'};
-  el.innerHTML=t.questions.map((q,i)=>{
-    let preview='';
-    if(q.type==='closed')preview=`${esc((q.q||'').substring(0,60))}`;
-    else if(q.type==='multi')preview=`${esc((q.q||'').substring(0,60))}`;
-    else if(q.type==='match')preview=`${esc((q.text||'').substring(0,60))}`;
-    else preview=`${esc((q.q||'').substring(0,60))}`;
-    return `<div class="qe">
-      <div class="qe-head">
-        <div><span class="qe-type">${typeLabel[q.type]||q.type}</span> · <span style="font-size:12px;color:var(--gold)">${q.points||1} хол</span></div>
-        <div class="btn-row">
-          <button class="btn bo btn-xs" onclick="editQuestion(${i})">✏</button>
-          <button class="btn bd btn-xs" onclick="delQuestion(${i})">🗑</button>
-          ${i>0?`<button class="btn bo btn-xs" onclick="moveQ(${i},-1)">↑</button>`:''}
-          ${i<t.questions.length-1?`<button class="btn bo btn-xs" onclick="moveQ(${i},1)">↓</button>`:''}
-        </div>
-      </div>
-      <div style="font-size:13px;color:var(--muted)">${preview}…</div>
-    </div>`}).join('');
-}
-function moveQ(i,dir){
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  const j=i+dir;if(j<0||j>=t.questions.length)return;
-  [t.questions[i],t.questions[j]]=[t.questions[j],t.questions[i]];
-  saveData();renderQList();
-}
-function delQuestion(i){
-  if(!confirm('Нест кардани савол?'))return;
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  t.questions.splice(i,1);saveData();renderQList();
-}
-
-// ===================== QUESTION MODAL =====================
-let matchLefts=[],matchRights=[],matchPairs=[];
-function openQModal(){curQIdx=null;document.getElementById('mQTitle').textContent='Иловаи савол нав';document.getElementById('qType').value='closed';document.getElementById('qComment').value='';document.getElementById('qPoints').value=1;matchLefts=[];matchRights=[];matchPairs=[];renderQForm();document.getElementById('mQuestion').classList.remove('hidden')}
-function editQuestion(i){
-  curQIdx=i;
-  const t=tests.find(x=>x.id===curTestId);const q=t.questions[i];
-  document.getElementById('mQTitle').textContent='Таҳрири савол '+(i+1);
-  document.getElementById('qType').value=q.type;
-  document.getElementById('qComment').value=q.comment||'';
-  document.getElementById('qPoints').value=q.points||1;
-  if(q.type==='match'){matchLefts=[...q.lefts];matchRights=[...q.rights];matchPairs=[...q.pairs];}
-  renderQForm();
-  // Fill values after render
-  setTimeout(()=>{
-    if(q.type==='closed'){
-      document.getElementById('qQ').value=q.q||'';
-      for(let k=0;k<4;k++){const el=document.getElementById(`qO${k}`);if(el)el.value=q.opts?.[k]||'';}
-      document.getElementById('qAns').value=q.ans||0;
-    } else if(q.type==='multi'){
-      document.getElementById('qQ').value=q.q||'';
-      for(let k=0;k<4;k++){const el=document.getElementById(`qO${k}`);if(el)el.value=q.opts?.[k]||'';}
-      (q.ans||[]).forEach(a=>{const cb=document.getElementById(`qCB${a}`);if(cb)cb.checked=true;});
-    } else if(q.type==='open'){
-      document.getElementById('qQ').value=q.q||'';
-      document.getElementById('qAns').value=q.ans||'';
-    }
-  },50);
-  document.getElementById('mQuestion').classList.remove('hidden');
-}
-function closeQModal(){document.getElementById('mQuestion').classList.add('hidden');matchLefts=[];matchRights=[];matchPairs=[];curQIdx=null}
-function renderQForm(){
-  const type=document.getElementById('qType').value;
-  const c=document.getElementById('qFormFields');
-  if(type==='closed')c.innerHTML=`
-    <div class="ig"><label>Матни савол</label><textarea id="qQ" rows="3" placeholder="Формулаи кислотаи сулфат..."></textarea></div>
-    <div class="formula-hint">💡 Барои формулаҳо истифода баред: H₂SO₄ H₂O CO₂ (нусха-часпонед)</div>
-    <div class="opts-grid">
-      <div class="ig"><label>A)</label><input id="qO0" placeholder="Вариант А"></div>
-      <div class="ig"><label>B)</label><input id="qO1" placeholder="Вариант Б"></div>
-      <div class="ig"><label>C)</label><input id="qO2" placeholder="Вариант В"></div>
-      <div class="ig"><label>D)</label><input id="qO3" placeholder="Вариант Г"></div>
-    </div>
-    <div class="ig"><label>Ҷавоби дуруст</label>
-      <select id="qAns"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>`;
-  else if(type==='multi')c.innerHTML=`
-    <div class="ig"><label>Матни савол</label><textarea id="qQ" rows="3"></textarea></div>
-    <div class="formula-hint">💡 Якчанд ҷавоби дуруст имконпазир аст</div>
-    <div class="opts-grid">
-      <div class="ig"><label><input type="checkbox" id="qCB0" style="margin-right:6px">A)</label><input id="qO0" placeholder="Вариант А"></div>
-      <div class="ig"><label><input type="checkbox" id="qCB1" style="margin-right:6px">B)</label><input id="qO1" placeholder="Вариант Б"></div>
-      <div class="ig"><label><input type="checkbox" id="qCB2" style="margin-right:6px">C)</label><input id="qO2" placeholder="Вариант В"></div>
-      <div class="ig"><label><input type="checkbox" id="qCB3" style="margin-right:6px">D)</label><input id="qO3" placeholder="Вариант Г"></div>
-    </div>`;
-  else if(type==='match'){renderMatchForm();}
-  else c.innerHTML=`
-    <div class="ig"><label>Матни савол</label><textarea id="qQ" rows="3"></textarea></div>
-    <div class="ig"><label>Ҷавоби дуруст (аниқ)</label><input id="qAns" placeholder="Масалан: H₂SO₄ ё 98.08"></div>
-    <div class="formula-hint">💡 Ҷавоб мустақиман муқоиса карда мешавад (регистр муҳим нест)</div>`;
-}
-function renderMatchForm(){
-  const c=document.getElementById('qFormFields');
-  c.innerHTML=`
-    <div class="ig"><label>Матни савол</label><textarea id="qQ" rows="2"></textarea></div>
-    <div style="margin:10px 0">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Ҷуфтҳо (чап → рост)</div>
-      <div id="matchLeftsEl"></div>
-      <button class="btn bo btn-xs" onclick="addMatchLeft()">+ Матни чап</button>
-    </div>
-    <div style="margin:10px 0">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Вариантҳои рост</div>
-      <div id="matchRightsEl"></div>
-      <button class="btn bo btn-xs" onclick="addMatchRight()">+ Варианти рост</button>
-    </div>`;
-  renderMatchItems();
-}
-function renderMatchItems(){
-  const lEl=document.getElementById('matchLeftsEl');
-  const rEl=document.getElementById('matchRightsEl');
-  if(!lEl||!rEl)return;
-  lEl.innerHTML=matchLefts.map((l,i)=>`
-    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-      <input value="${esc(l)}" style="flex:1;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text)" oninput="matchLefts[${i}]=this.value">
-      <select style="padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text)" onchange="matchPairs[${i}]=parseInt(this.value)">
-        ${matchRights.map((r,ri)=>`<option value="${ri}" ${matchPairs[i]===ri?'selected':''}>${ri+1}. ${esc(r)}</option>`).join('')}
-      </select>
-      <button class="btn bd btn-xs" onclick="removeMatchLeft(${i})">✕</button>
-    </div>`).join('');
-  rEl.innerHTML=matchRights.map((r,i)=>`
-    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-      <input value="${esc(r)}" style="flex:1;padding:8px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text)" oninput="matchRights[${i}]=this.value">
-      <button class="btn bd btn-xs" onclick="removeMatchRight(${i})">✕</button>
-    </div>`).join('');
-}
-function addMatchLeft(){matchLefts.push('');matchPairs.push(0);renderMatchItems()}
-function removeMatchLeft(i){matchLefts.splice(i,1);matchPairs.splice(i,1);renderMatchItems()}
-function addMatchRight(){matchRights.push('');renderMatchItems()}
-function removeMatchRight(i){matchRights.splice(i,1);renderMatchItems()}
-
-function saveQuestion(){
-  const type=document.getElementById('qType').value;
-  const comment=document.getElementById('qComment').value;
-  const points=parseInt(document.getElementById('qPoints').value)||1;
-  const t=tests.find(x=>x.id===curTestId);if(!t)return;
-  let q=null;
-  if(type==='closed'){
-    const qtext=document.getElementById('qQ')?.value?.trim();
-    const opts=[0,1,2,3].map(i=>document.getElementById(`qO${i}`)?.value?.trim());
-    const ans=parseInt(document.getElementById('qAns')?.value);
-    if(!qtext||opts.some(o=>!o)){toast('Ҳамаи майдонҳоро пур кунед!','err');return}
-    q={type,q:qtext,opts,ans,comment,points};
-  } else if(type==='multi'){
-    const qtext=document.getElementById('qQ')?.value?.trim();
-    const opts=[0,1,2,3].map(i=>document.getElementById(`qO${i}`)?.value?.trim());
-    const ans=[0,1,2,3].filter(i=>document.getElementById(`qCB${i}`)?.checked);
-    if(!qtext||opts.some(o=>!o)||!ans.length){toast('Ҳамаи майдонҳоро пур кунед!','err');return}
-    q={type,q:qtext,opts,ans,comment,points};
-  } else if(type==='match'){
-    const qtext=document.getElementById('qQ')?.value?.trim();
-    if(!qtext||matchLefts.length===0||matchRights.length===0){toast('Ҳамаи майдонҳоро пур кунед!','err');return}
-    q={type,text:qtext,lefts:[...matchLefts],rights:[...matchRights],pairs:[...matchPairs],comment,points};
-  } else {
-    const qtext=document.getElementById('qQ')?.value?.trim();
-    const ans=document.getElementById('qAns')?.value?.trim();
-    if(!qtext||!ans){toast('Ҳамаи майдонҳоро пур кунед!','err');return}
-    q={type,q:qtext,ans,comment,points};
-  }
-  if(curQIdx!==null)t.questions[curQIdx]=q; else t.questions.push(q);
-  saveData();renderQList();closeQModal();
-  toast('Савол сабт шуд!','ok');
-}
-
-// ===================== IMPORT =====================
-function openImportModal(){document.getElementById('mImport').classList.remove('hidden')}
-function closeImportModal(){document.getElementById('mImport').classList.add('hidden')}
-function handleDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processImportFile(f)}
-function doImport(inp){if(inp.files[0])processImportFile(inp.files[0])}
-function processImportFile(file){
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      const n={id:Date.now(),teacherId:curTeacher.username,name:d.name||'Импорт',timeLimit:d.timeLimit||30,code:genCode(),questions:d.questions||[],tags:d.tags||[],isActive:false,results:[],expiryDate:'',shuffle:false,shuffleOpts:false,oneAttempt:false};
-      tests.push(n);saveData();renderTests();renderStats();closeImportModal();
-      toast('Тест импорт шуд! ✅','ok');
-    }catch{toast('Файли нодуруст!','err')}
-  };r.readAsText(file);
-}
-function doRestore(inp){
-  if(!inp.files[0])return;
-  if(!confirm('Ин амал ҳамаи маълумоти мавҷударо иваз мекунад. Идома?'))return;
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      if(d.teachers)teachers=d.teachers;
-      if(d.tests)tests=d.tests;
-      saveData();toast('Маълумот барқарор шуд!','ok');location.reload();
-    }catch{toast('Файли нодуруст!','err')}
-  };r.readAsText(inp.files[0]);
-}
-
-// ===================== RESULTS =====================
-function showResults(id){
-  curResTestId=id;
-  const t=tests.find(x=>x.id===id);if(!t)return;
-  document.getElementById('mResTitle').textContent=`📊 ${esc(t.name)}`;
-  const results=t.results||[];
-  if(resChart){resChart.destroy();resChart=null}
-  const ctx=document.getElementById('resChart')?.getContext('2d');
-  if(ctx&&results.length){
-    resChart=new Chart(ctx,{type:'bar',data:{labels:results.slice(-20).map(r=>r.name),datasets:[{label:'Фоиз %',data:results.slice(-20).map(r=>r.percent),backgroundColor:'rgba(79,142,247,0.6)',borderColor:'#4f8ef7',borderWidth:1}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100}}}});
-  }
-  const sorted=[...results].sort((a,b)=>b.percent-a.percent);
-  document.getElementById('rankingDiv').innerHTML=sorted.slice(0,10).map((r,i)=>`
-    <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--s2);border-radius:var(--rs);margin-bottom:6px">
-      <div><span class="rank-badge ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span> <span style="margin-left:8px">${esc(r.name)}</span></div>
-      <div style="font-weight:600">${r.percent}% · Баҳо: ${r.grade}</div>
-    </div>`).join('');
-  document.getElementById('resTbody').innerHTML=results.map((r,i)=>`
-    <tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${r.date}</td><td>${r.earned}/${r.total}</td><td>${r.percent}%</td><td>${r.grade}</td>
-    <td><button class="btn bo btn-xs" onclick="deleteResult(${id},${i})">🗑</button></td></tr>`).join('');
-  document.getElementById('mResults').classList.remove('hidden');
-}
-function closeResultsModal(){document.getElementById('mResults').classList.add('hidden');if(resChart){resChart.destroy();resChart=null}}
-function deleteResult(testId,idx){
-  const t=tests.find(x=>x.id===testId);if(!t)return;
-  t.results.splice(idx,1);saveData();showResults(testId);toast('Натиҷа нест шуд','ok');
-}
-function clearResults(){
-  if(!confirm('Ҳамаи натиҷаҳои ин тест нест карда шаванд?'))return;
-  const t=tests.find(x=>x.id===curResTestId);if(!t)return;
-  t.results=[];saveData();closeResultsModal();renderStats();toast('Натиҷаҳо тоза шуд','ok');
-}
-function exportCSV(){
-  const t=tests.find(x=>x.id===curResTestId);if(!t)return;
-  const rows=['Талаба,Сана,Холҳо,Ҳамаги,Фоиз,Баҳо',...(t.results||[]).map(r=>`${r.name},${r.date},${r.earned},${r.total},${r.percent},${r.grade}`)];
-  const blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='results.csv';a.click();
-  toast('CSV боргирӣ шуд!','ok');
-}
-function printResults(){window.print()}
-
-// ===================== SETTINGS =====================
-function openSettings(){document.getElementById('newPass').value='';document.getElementById('newPass2').value='';document.getElementById('mSettings').classList.remove('hidden')}
-function closeMod(id){document.getElementById(id).classList.add('hidden')}
-
-// ===================== STUDENT =====================
-function showStudentPanel(){showPage('pgStudent')}
-function startStudent(){
-  const code=document.getElementById('sCode').value.trim().toUpperCase();
-  const name=document.getElementById('sName').value.trim();
-  if(!code){toast('Рамзи тестро ворид кунед!','err');return}
-  if(!name){toast('Номи худро ворид кунед!','err');return}
-  const t=tests.find(x=>x.code===code&&x.isActive);
-  if(!t){toast('Рамзи нодуруст ё тест ғайрифаъол!','err');return}
-  if(t.expiryDate){
-    const exp=new Date(t.expiryDate);exp.setHours(23,59,59,999);
-    if(exp<new Date()){toast('Муҳлати ин тест гузаштааст!','err');return}
-  }
-  if(t.oneAttempt&&(t.results||[]).some(r=>r.name===name)){
-    toast('Шумо аллакай ин тестро гузаштаед!','err');return}
-  // Deep clone & shuffle if needed
-  quizTest=JSON.parse(JSON.stringify(t));
-  if(quizTest.shuffle){quizTest.questions=shuffle([...quizTest.questions])}
-  if(quizTest.shuffleOpts){
-    quizTest.questions.forEach(q=>{
-      if((q.type==='closed'||q.type==='multi')&&q.opts){
-        const correctVals=q.type==='closed'?[q.opts[q.ans]]:q.ans.map(i=>q.opts[i]);
-        q.opts=shuffle([...q.opts]);
-        if(q.type==='closed')q.ans=q.opts.indexOf(correctVals[0]);
-        else q.ans=correctVals.map(v=>q.opts.indexOf(v));
-      }
-    });
-  }
-  quizName=name;
-  quizAnswers=new Array(quizTest.questions.length).fill(null);
-  quizIdx=0;multiSel=[];
-  quizTimeLeft=quizTest.timeLimit*60;
-  startQuizTimer();
-  showPage('pgQuiz');
-  renderQuizQ();
-}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-
-// ===================== QUIZ =====================
-function startQuizTimer(){
-  if(quizTimer)clearInterval(quizTimer);
-  let reminded=false;
-  quizTimer=setInterval(()=>{
-    quizTimeLeft--;
-    updateTimerDisplay();
-    if(quizTimeLeft===60&&!reminded){toast('⏰ Як дақиқа монда!');reminded=true}
-    if(quizTimeLeft<=0){clearInterval(quizTimer);finishQuiz()}
-  },1000);
-  updateTimerDisplay();
-}
-function updateTimerDisplay(){
-  const m=Math.floor(quizTimeLeft/60),s=quizTimeLeft%60;
-  const el=document.getElementById('qzTimer');
-  if(!el)return;
-  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.className='timer'+(quizTimeLeft<=60?' danger':quizTimeLeft<=120?' warn':'');
-}
-function renderQuizQ(){
-  const q=quizTest.questions[quizIdx];
-  const total=quizTest.questions.length;
-  const pct=Math.round((quizIdx/total)*100);
-  document.getElementById('qzTitle').textContent=quizTest.name;
-  document.getElementById('qzProgText').textContent=`Савол ${quizIdx+1} / ${total}`;
-  document.getElementById('qzFill').style.width=pct+'%';
-  const c=document.getElementById('qzContent');
-  const nxt=document.getElementById('qzNext');
-  if(q.type==='closed'){
-    nxt.disabled=true;
-    c.innerHTML=`<div class="qz-q"><span class="qnum">Савол ${quizIdx+1}</span>${esc(q.q)}</div>
-      ${q.opts.map((o,i)=>`<div class="opt" id="o${i}" onclick="pickClosed(${i})"><div class="opt-ltr">${String.fromCharCode(65+i)}</div>${esc(o)}</div>`).join('')}`;
-    // Restore if already answered
-    if(quizAnswers[quizIdx]!==null){const prev=quizAnswers[quizIdx].selected;pickClosed(prev,true)}
-  } else if(q.type==='multi'){
-    multiSel=quizAnswers[quizIdx]?.selected?[...quizAnswers[quizIdx].selected]:[];
-    nxt.disabled=false;
-    c.innerHTML=`<div class="qz-q"><span class="qnum">Савол ${quizIdx+1} · <span style="color:var(--purple)">якчанд ҷавоб</span></span>${esc(q.q)}</div>
-      ${q.opts.map((o,i)=>`<div class="opt ${multiSel.includes(i)?'msel':''}" id="o${i}" onclick="pickMulti(${i})"><div class="opt-ltr">${String.fromCharCode(65+i)}</div>${esc(o)}</div>`).join('')}`;
-  } else if(q.type==='match'){
-    nxt.disabled=true;
-    let saved=quizAnswers[quizIdx]?.selected||[];
-    c.innerHTML=`<div class="qz-q"><span class="qnum">Савол ${quizIdx+1} · <span style="color:var(--ac2)">мувофиқат</span></span>${esc(q.text)}</div>
-      ${q.lefts.map((l,i)=>`<div class="match-row"><div class="match-left">${esc(l)}</div>
-        <select class="match-sel" id="ms${i}" onchange="checkMatchDone()">
-          <option value="">— Интихоб —</option>
-          ${q.rights.map((r,ri)=>`<option value="${ri}" ${saved[i]===ri?'selected':''}>${ri+1}. ${esc(r)}</option>`).join('')}
-        </select></div>`).join('')}`;
-    checkMatchDone();
-  } else {
-    const savedVal=quizAnswers[quizIdx]?.selected||'';
-    nxt.disabled=!savedVal;
-    c.innerHTML=`<div class="qz-q"><span class="qnum">Савол ${quizIdx+1} · <span style="color:var(--green)">ҷавоби кушода</span></span>${esc(q.q)}</div>
-      <input class="open-inp" id="openAns" placeholder="Ҷавоби худро нависед..." value="${esc(savedVal)}" oninput="document.getElementById('qzNext').disabled=!this.value.trim()">`;
-    if(savedVal)nxt.disabled=false;
-  }
-}
-function pickClosed(i,silent=false){
-  quizAnswers[quizIdx]={type:'closed',selected:i};
-  document.querySelectorAll('.opt').forEach((o,k)=>{o.className='opt'+(k===i?' sel':'');});
-  if(!silent)document.getElementById('qzNext').disabled=false;
-}
-function pickMulti(i){
-  const pos=multiSel.indexOf(i);
-  if(pos>-1)multiSel.splice(pos,1);else multiSel.push(i);
-  quizAnswers[quizIdx]={type:'multi',selected:[...multiSel]};
-  document.querySelectorAll('.opt').forEach((o,k)=>{o.className='opt'+(multiSel.includes(k)?' msel':'');});
-}
-function checkMatchDone(){
-  const q=quizTest.questions[quizIdx];
-  const sel=[];let allDone=true;
-  for(let i=0;i<q.lefts.length;i++){
-    const v=document.getElementById(`ms${i}`)?.value;
-    if(!v){allDone=false;sel.push(null);}else sel.push(parseInt(v));
-  }
-  if(allDone){quizAnswers[quizIdx]={type:'match',selected:sel};document.getElementById('qzNext').disabled=false;}
-}
-function skipQuestion(){nextQuestion(true)}
-function nextQuestion(skip=false){
-  if(!skip){
-    const q=quizTest.questions[quizIdx];
-    if(q.type==='open'){
-      const v=document.getElementById('openAns')?.value?.trim();
-      if(v)quizAnswers[quizIdx]={type:'open',selected:v};
-    }
-  }
-  if(quizIdx<quizTest.questions.length-1){quizIdx++;multiSel=[];renderQuizQ();}
-  else finishQuiz();
-}
-
-// ===================== SCORE =====================
-function finishQuiz(){
-  if(quizTimer)clearInterval(quizTimer);
-  const results=calcScore();
-  // Save result to original test
-  const orig=tests.find(x=>x.code===quizTest.code);
-  if(orig){
-    if(!orig.results)orig.results=[];
-    orig.results.push({name:quizName,date:new Date().toLocaleDateString('tg-TJ'),earned:results.earned,total:results.total,percent:results.percent,grade:results.grade,answers:quizAnswers});
-    saveData();
-  }
-  lastResults=results;
-  showStudentResult(results);
-}
-function calcScore(){
-  let earned=0,total=0;
-  quizTest.questions.forEach((q,i)=>{
-    const pts=q.points||1;
-    const ans=quizAnswers[i];
-    if(q.type==='closed'){
-      total+=pts*3;
-      if(ans&&ans.selected===q.ans)earned+=pts*3;
-    } else if(q.type==='multi'){
-      total+=pts*4;
-      if(ans&&ans.selected){
-        const correctSet=new Set(q.ans);
-        const selSet=new Set(ans.selected);
-        let correct=0,wrong=0;
-        selSet.forEach(s=>{if(correctSet.has(s))correct++;else wrong++;});
-        // Deduct for wrong selections, minimum 0
-        const score=Math.max(0,(correct-wrong)*Math.floor((pts*4)/q.ans.length));
-        earned+=Math.min(pts*4,score);
-      }
-    } else if(q.type==='match'){
-      total+=pts*q.lefts.length*2;
-      if(ans&&ans.selected){
-        q.pairs.forEach((a,idx)=>{if(ans.selected[idx]===a)earned+=pts*2;});
-      }
+// ==================== FIREBASE HELPERS ====================
+async function loadFromFirebase() {
+  if (!window.db) return;
+  try {
+    const snapshot = await window.dbGet(window.dbChild(window.dbRef(window.db), 'vortex_data'));
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      teachers = data.teachers || [];
+      tests = data.tests || [];
+      console.log("✅ Loaded from Firebase:", { teachers: teachers.length, tests: tests.length });
     } else {
-      total+=pts*4;
-      if(ans){
-        const ua=String(ans.selected).trim().toLowerCase().replace(',','.');
-        const ca=String(q.ans).trim().toLowerCase().replace(',','.');
-        if(ua===ca)earned+=pts*4;
-      }
+      console.log("No data in Firebase, using defaults");
     }
-  });
-  const percent=total>0?Math.round((earned/total)*100):0;
-  let grade=1;
-  if(percent>=95)grade=10;
-  else if(percent>=85)grade=9;
-  else if(percent>=75)grade=8;
-  else if(percent>=65)grade=7;
-  else if(percent>=55)grade=6;
-  else if(percent>=45)grade=5;
-  else if(percent>=35)grade=4;
-  else if(percent>=25)grade=3;
-  else if(percent>=15)grade=2;
-  return{earned,total,percent,grade};
+  } catch(e) { console.error("Firebase load error:", e); }
 }
-function showStudentResult(r){
-  showPage('pgResult');
-  const emoji=r.grade>=9?'🎉':r.grade>=7?'👍':r.grade>=5?'😐':'😔';
-  const desc=r.grade>=9?'Аъло!':r.grade>=7?'Хуб!':r.grade>=5?'Қаноатбахш':'Такрор лозим';
-  document.getElementById('resTitle').textContent='📊 Натиҷа';
-  document.getElementById('resContent').innerHTML=`
-    <div class="result-hero">
-      <div class="result-grade">${r.grade}</div>
-      <div class="result-percent">аз 10 · ${r.percent}%</div>
-      <div class="result-desc">${emoji} ${desc}</div>
-    </div>
-    <div class="result-stats">
-      <div class="rs-item"><div class="rs-num" style="color:var(--green)">${r.earned}</div><div class="rs-lbl">Холҳои бадастовардашуда</div></div>
-      <div class="rs-item"><div class="rs-num">${r.total}</div><div class="rs-lbl">Ҳамаги холҳо</div></div>
-      <div class="rs-item"><div class="rs-num" style="color:var(--gold)">${r.percent}%</div><div class="rs-lbl">Фоизи дурустӣ</div></div>
-    </div>`;
-}
-function showReview(){
-  const q=quizTest.questions,a=quizAnswers;
-  const typeLabel={closed:'Пӯшида',multi:'Бисёрҷавоба',match:'Мувофиқат',open:'Кушода'};
-  let html='<div style="margin-top:8px">';
-  q.forEach((qu,i)=>{
-    const ans=a[i];
-    let status='⏭',your='—',correct='';
-    if(ans){
-      if(qu.type==='closed'){
-        const ok=ans.selected===qu.ans;status=ok?'✅':'❌';
-        your=qu.opts[ans.selected]||'—';correct=qu.opts[qu.ans];
-      } else if(qu.type==='multi'){
-        const ok=qu.ans.every(x=>ans.selected?.includes(x))&&ans.selected?.length===qu.ans.length;
-        status=ok?'✅':'❌';
-        your=(ans.selected||[]).map(s=>String.fromCharCode(65+s)).join(', ');
-        correct=qu.ans.map(c=>String.fromCharCode(65+c)).join(', ');
-      } else if(qu.type==='match'){
-        const ok=qu.pairs.every((p,idx)=>ans.selected?.[idx]===p);
-        status=ok?'✅':'❌';
-        your=(ans.selected||[]).map(s=>s+1).join('-');
-        correct=qu.pairs.map(p=>p+1).join('-');
-      } else {
-        const ua=String(ans.selected||'').trim().toLowerCase().replace(',','.');
-        const ca=String(qu.ans||'').trim().toLowerCase().replace(',','.');
-        status=ua===ca?'✅':'❌';your=ans.selected;correct=qu.ans;
-      }
-    }
-    html+=`<div class="rev-item ${status==='✅'?'ok':'err'}">
-      <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted)">Савол ${i+1} · ${typeLabel[qu.type]}</span><span>${status}</span></div>
-      <div class="rev-q">${esc(qu.q||qu.text||'')}</div>
-      <div class="rev-ans wrong">Шумо: ${esc(String(your))}</div>
-      <div class="rev-ans correct">Дуруст: ${esc(String(correct))}</div>
-      ${qu.comment?`<div class="rev-comment">💡 ${esc(qu.comment)}</div>`:''}
-    </div>`;
-  });
-  html+='</div>';
-  document.getElementById('resContent').innerHTML=html;
-  document.getElementById('resTitle').textContent='📖 Таҳлили ҷавобҳо';
-}
-function printResult(){window.print()}
 
-// ===================== KEYBOARD =====================
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    if(!document.getElementById('pgAuth').classList.contains('hidden'))doAuth();
-    if(!document.getElementById('pgStudent').classList.contains('hidden'))startStudent();
-    if(!document.getElementById('pgQuiz').classList.contains('hidden')&&!document.getElementById('qzNext').disabled)nextQuestion();
+async function saveToFirebase() {
+  if (!window.db) return;
+  try {
+    await window.dbSet(window.dbRef(window.db, 'vortex_data'), { teachers, tests });
+    console.log("✅ Saved to Firebase");
+  } catch(e) { console.error("Firebase save error:", e); }
+}
+
+function saveAll() { 
+  localStorage.setItem('vortex_teachers', JSON.stringify(teachers)); 
+  localStorage.setItem('vortex_tests', JSON.stringify(tests));
+  saveToFirebase();
+}
+
+function loadLocal() {
+  const savedTeachers = localStorage.getItem('vortex_teachers');
+  const savedTests = localStorage.getItem('vortex_tests');
+  if (savedTeachers) teachers = JSON.parse(savedTeachers);
+  if (savedTests) tests = JSON.parse(savedTests);
+}
+
+// ==================== INIT ====================
+async function init() {
+  loadLocal();
+  await loadFromFirebase();
+  if (teachers.length === 0) {
+    teachers = [{ username: "admin", password: "12345", favorites: [] }];
+    tests = [];
+    saveAll();
   }
-  if(e.key==='Escape'){
-    ['mQuestion','mResults','mImport','mSettings'].forEach(m=>{document.getElementById(m)?.classList.add('hidden')});
+  renderHistory();
+}
+function renderHistory() {}
+
+// Helper functions
+function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
+function showToast(msg) { let t=document.createElement('div'); t.className='toast'; t.innerHTML=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+function toggleTheme() { document.body.classList.toggle('light'); localStorage.setItem('theme', document.body.classList.contains('light')?'light':'dark'); }
+if(localStorage.getItem('theme')==='light') document.body.classList.add('light');
+
+// Anti-fraud
+document.addEventListener('visibilitychange', function() {
+  if (quizActive && document.hidden && !fraudWarningShown) {
+    fraudWarningShown = true;
+    alert("⚠️ АГОҲӢ! Шумо табдили варақа кардед. Тест бекор карда мешавад!");
+    if (quizTimerInterval) clearInterval(quizTimerInterval);
+    quizActive = false;
+    finishQuiz();
   }
 });
 
-// ===================== INIT =====================
-// Create demo test if empty
-(function(){
-  if(!tests.length){
-    tests.push({
-      id:1,teacherId:'demo',name:'Тести намунавӣ - Химия',timeLimit:20,
-      code:'DEMO01',questions:[
-        {type:'closed',q:'Формулаи оби хоқисор?',opts:['H₂O','CO₂','NaCl','O₂'],ans:0,comment:'Об аз ду атоми гидроген ва як атоми оксиген иборат аст.',points:1},
-        {type:'multi',q:'Кадом формулаҳо кислотаҳо мебошанд?',opts:['HCl','NaOH','H₂SO₄','KOH'],ans:[0,2],comment:'HCl - кислотаи хлорид, H₂SO₄ - кислотаи сулфат.',points:1},
-        {type:'open',q:'Рамзи химиявии тилоро нависед',ans:'Au',comment:'Аз лотинӣ Aurum.',points:1},
-        {type:'match',q:'Ҷуфтҳоро мувофиқ кунед',lefts:['Оксиген','Нитроген','Гидроген'],rights:['O','N','H'],pairs:[0,1,2],comment:'Рамзҳои элементҳои химиявӣ.',points:1}
-      ],
-      tags:['Намуна','Химия'],isActive:true,results:[],expiryDate:'',shuffle:false,shuffleOpts:false,oneAttempt:false
-    });
-    saveData();
-  }
+// ==================== AUTH ====================
+let authMode = 'login';
+function switchAuthMode() { authMode = authMode==='login'?'register':'login'; document.getElementById('authTitle').innerHTML = authMode==='register'?'🔐 REGISTER':'🔑 LOGIN'; document.getElementById('confirmPasswordGroup').classList.toggle('hidden', authMode!=='register'); document.getElementById('authBtn').innerHTML = authMode==='register'?'Сабти ном':'Ворид шудан'; document.getElementById('authSwitch').innerHTML = authMode==='register'?'<span style="color:var(--muted)">Аллакай ҳисоб доред?</span> <button class="btn btn-sm btn-outline" onclick="switchAuthMode()">Ворид шавед</button>':'<span style="color:var(--muted)">Ҳисоб надоред?</span> <button class="btn btn-sm btn-outline" onclick="switchAuthMode()">Сабти ном</button>'; }
+function handleAuth() { let username=document.getElementById('authUsername').value.trim(); let password=document.getElementById('authPassword').value; if(!username){alert("Номи корбариро ворид кунед!");return;}
+  if(authMode==='register'){ let confirmPass=document.getElementById('confirmPassword').value; if(password!==confirmPass){alert("Паролҳо мувофиқат намекунанд!");return;} if(teachers.find(t=>t.username===username)){alert("Ин ном аллакай вуҷуд дорад!");return;} teachers.push({username, password, favorites:[]}); saveAll(); alert("Сабти ном шуд! Акнун ворид шавед."); switchAuthMode(); }
+  else{ let user=teachers.find(t=>t.username===username && t.password===password); if(!user){alert("Ном ё парол нодуруст!");return;} currentTeacher=user; document.getElementById('teacherUsername').innerHTML=username; document.getElementById('teacherAuth').classList.add('hidden'); document.getElementById('teacherPanel').classList.remove('hidden'); renderTeacherTestsList(); } }
+function changePassword(){ let newPass=prompt("Пароли нав (4+ аломат):"); if(newPass && newPass.length>=4){ currentTeacher.password=newPass; saveAll(); showToast("Парол тағйир ёфт!"); } else alert("Парол бояд 4+ аломат бошад!"); }
+function logoutTeacher(){ currentTeacher=null; document.getElementById('teacherPanel').classList.add('hidden'); backToMenu(); }
+function backToMenu(){ document.getElementById('mainMenu').classList.remove('hidden'); document.getElementById('teacherAuth').classList.add('hidden'); document.getElementById('teacherPanel').classList.add('hidden'); document.getElementById('testEditor').classList.add('hidden'); document.getElementById('studentPanel').classList.add('hidden'); document.getElementById('quizScreen').classList.add('hidden'); document.getElementById('resultScreen').classList.add('hidden'); if(quizTimerInterval) clearInterval(quizTimerInterval); quizActive=false; }
+function showTeacherLogin(){ document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('teacherAuth').classList.remove('hidden'); authMode='login'; document.getElementById('authTitle').innerHTML='🔑 LOGIN'; document.getElementById('confirmPasswordGroup').classList.add('hidden'); document.getElementById('authBtn').innerHTML='Ворид шудан'; document.getElementById('authSwitch').innerHTML='<span style="color:var(--muted)">Ҳисоб надоред?</span> <button class="btn btn-sm btn-outline" onclick="switchAuthMode()">Сабти ном</button>'; }
+
+// ==================== TEACHER ====================
+function renderTeacherTestsList(){ let search=document.getElementById('searchTests')?.value.toLowerCase()||''; let filtered=tests.filter(t=>t.teacherId===currentTeacher.username); if(search) filtered=filtered.filter(t=>t.name.toLowerCase().includes(search)); let container=document.getElementById('teacherTestsList'); if(filtered.length===0){ container.innerHTML='<div style="padding:20px; text-align:center; color:var(--muted)">Ҳеҷ тест нест</div>'; return; }
+  container.innerHTML=filtered.map(test=>`<div class="test-item"><div><div style="display:flex; align-items:center; gap:8px"><span class="favorite-star" onclick="toggleFavorite(${test.id})">${currentTeacher.favorites.includes(test.id)?'⭐':'☆'}</span><h4>${escapeHtml(test.name)}</h4></div><p>${test.questions.length} савол | ${test.timeLimit} дақ | ${test.results?.length||0} натиҷа</p><p><span class="badge ${test.isActive?'badge-active':'badge-inactive'}">${test.isActive?'ФАЪОЛ':'ҒАЙРИФАЪОЛ'}</span> <span class="test-code">🔑 ${test.code}</span></p></div><div style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn btn-sm btn-primary" onclick="editTest(${test.id})">✏</button><button class="btn btn-sm btn-warning" onclick="toggleActive(${test.id})">${test.isActive?'🔴':'🟢'}</button><button class="btn btn-sm btn-success" onclick="newCode(${test.id})">🔄</button><button class="btn btn-sm btn-outline" onclick="showResults(${test.id})">📊</button></div></div>`).join(''); }
+function toggleFavorite(id){ let idx=currentTeacher.favorites.indexOf(id); if(idx>-1) currentTeacher.favorites.splice(idx,1); else currentTeacher.favorites.push(id); saveAll(); renderTeacherTestsList(); }
+function toggleActive(id){ let test=tests.find(t=>t.id===id); if(test){test.isActive=!test.isActive; saveAll(); renderTeacherTestsList(); showToast(test.isActive?"Тест фаъол шуд":"Тест ғайрифаъол шуд");} }
+function newCode(id){ let test=tests.find(t=>t.id===id); if(test){ let chars='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'; let code=''; for(let i=0;i<6;i++) code+=chars[Math.floor(Math.random()*chars.length)]; test.code=code; saveAll(); renderTeacherTestsList(); showToast("Рамзи нав: "+code); } }
+function filterTests(){ renderTeacherTestsList(); }
+function openCreateTestModal(){ let newId=Date.now(); tests.push({id:newId, teacherId:currentTeacher.username, name:"Тести нав", timeLimit:30, code:Math.random().toString(36).substring(2,8).toUpperCase(), questions:[], tags:[], isActive:false, results:[]}); saveAll(); editTest(newId); }
+function editTest(id){ currentTestId=id; let test=tests.find(t=>t.id===id); if(!test)return; document.getElementById('testName').value=test.name; document.getElementById('testTime').value=test.timeLimit; document.getElementById('testTags').value=test.tags?.join(', ')||''; document.getElementById('editorTitle').innerHTML=`✏️ ${escapeHtml(test.name)}`; renderQuestions(test.questions); document.getElementById('teacherPanel').classList.add('hidden'); document.getElementById('testEditor').classList.remove('hidden'); }
+function renderQuestions(q){ let c=document.getElementById('questionsList'); if(!q||!q.length){c.innerHTML='<div style="padding:20px; text-align:center; color:var(--muted)">Ҳеҷ савол нест</div>';return;} c.innerHTML=q.map((q,i)=>{let pre=''; if(q.type==='closed') pre=`${q.q.substring(0,50)}... [${String.fromCharCode(65+q.ans)}]`; else if(q.type==='multi') pre=`${q.q.substring(0,50)}... [${q.ans.map(a=>String.fromCharCode(65+a)).join(',')}]`; else if(q.type==='match') pre=`${q.text?.substring(0,50)}...`; else pre=`${q.q.substring(0,50)}...`; return `<div class="question-editor"><div style="display:flex; justify-content:space-between"><strong>${i+1}. ${q.type==='closed'?'📘':q.type==='multi'?'🎯':q.type==='match'?'🔗':'💡'}</strong><div><button class="btn btn-sm btn-outline" onclick="editQ(${i})">✏</button><button class="btn btn-sm btn-danger" onclick="deleteQ(${i})">🗑</button></div></div><div style="font-size:13px; color:var(--muted)">${escapeHtml(pre)}</div></div>`;}).join(''); }
+function editQ(i){ currentEditingQuestionIndex=i; let test=tests.find(t=>t.id===currentTestId); let q=test.questions[i]; document.getElementById('modalTitle').innerHTML='Таҳрири савол'; document.getElementById('questionType').value=q.type; changeQuestionType(); document.getElementById('questionComment').value=q.comment||'';
+  if(q.type==='closed'){ document.getElementById('closed_q').value=q.q||''; for(let j=0;j<4;j++){ let inp=document.getElementById(`closed_opt_${j}`); if(inp) inp.value=q.opts?.[j]||''; } document.getElementById('closed_ans').value=q.ans||0; }
+  else if(q.type==='multi'){ document.getElementById('multi_q').value=q.q||''; for(let j=0;j<4;j++){ let inp=document.getElementById(`multi_opt_${j}`); if(inp) inp.value=q.opts?.[j]||''; } document.getElementById('multi_ans').value=q.ans?.join(',')||''; }
+  else if(q.type==='match'){ document.getElementById('match_text').value=q.text||''; window.matchData={lefts:[...q.lefts],rights:[...q.rights],pairs:[...q.pairs]}; renderMatchFields(); }
+  else{ document.getElementById('open_q').value=q.q||''; document.getElementById('open_ans').value=q.ans||''; }
+  document.getElementById('questionModal').classList.remove('hidden'); }
+function deleteQ(i){ if(confirm("Нест?")){ let test=tests.find(t=>t.id===currentTestId); test.questions.splice(i,1); saveAll(); renderQuestions(test.questions); } }
+function addQuestion(){ currentEditingQuestionIndex=null; document.getElementById('modalTitle').innerHTML='Саволи нав'; document.getElementById('questionType').value='closed'; changeQuestionType(); document.getElementById('questionComment').value=''; document.getElementById('questionModal').classList.remove('hidden'); }
+function saveCurrentQuestion(){ let type=document.getElementById('questionType').value; let test=tests.find(t=>t.id===currentTestId); if(!test)return; let comment=document.getElementById('questionComment').value; let newQ=null;
+  if(type==='closed'){ let q=document.getElementById('closed_q')?.value; let opts=[0,1,2,3].map(i=>document.getElementById(`closed_opt_${i}`)?.value); let ans=parseInt(document.getElementById('closed_ans')?.value); if(!q||opts.some(o=>!o)){alert("Пур кунед!");return;} newQ={type,q,opts,ans,comment}; }
+  else if(type==='multi'){ let q=document.getElementById('multi_q')?.value; let opts=[0,1,2,3].map(i=>document.getElementById(`multi_opt_${i}`)?.value); let ans=document.getElementById('multi_ans')?.value.split(',').map(Number); if(!q||opts.some(o=>!o)||!ans.length){alert("Пур кунед!");return;} newQ={type,q,opts,ans,comment}; }
+  else if(type==='match'){ let text=document.getElementById('match_text')?.value; let lefts=[],pairs=[]; for(let i=0;i<window.matchData.lefts.length;i++){ let lv=document.querySelector(`.match-left-${i}`)?.value; let pv=document.querySelector(`.match-pair-${i}`)?.value; if(lv){lefts.push(lv);pairs.push(parseInt(pv||0));}} let rights=[]; for(let i=0;i<window.matchData.rights.length;i++){ let rv=document.querySelector(`.match-right-${i}`)?.value; if(rv) rights.push(rv);} if(!text||lefts.length===0||rights.length===0){alert("Пур кунед!");return;} newQ={type,text,lefts,rights,pairs,comment}; }
+  else{ let q=document.getElementById('open_q')?.value; let ans=document.getElementById('open_ans')?.value; if(!q||!ans){alert("Пур кунед!");return;} newQ={type,q,ans,comment}; }
+  if(currentEditingQuestionIndex!==null && test.questions[currentEditingQuestionIndex]) test.questions[currentEditingQuestionIndex]=newQ; else test.questions.push(newQ);
+  saveAll(); renderQuestions(test.questions); closeQuestionModal(); }
+function saveTest(){ let test=tests.find(t=>t.id===currentTestId); if(test){ test.name=document.getElementById('testName').value; test.timeLimit=parseInt(document.getElementById('testTime').value); test.tags=document.getElementById('testTags').value.split(',').map(s=>s.trim()).filter(s=>s); saveAll(); showToast("Захира шуд!"); backToTeacherPanel(); } }
+function deleteCurrentTest(){ if(confirm("Нест?")){ tests=tests.filter(t=>t.id!==currentTestId); saveAll(); backToTeacherPanel(); } }
+function cloneTest(){ let test=tests.find(t=>t.id===currentTestId); if(test){ let newTest={...test, id:Date.now(), name:test.name+" (нусха)", code:Math.random().toString(36).substring(2,8).toUpperCase(), results:[]}; tests.push(newTest); saveAll(); editTest(newTest.id); } }
+function exportTest(){ let test=tests.find(t=>t.id===currentTestId); if(test){ let data=JSON.stringify({name:test.name, timeLimit:test.timeLimit, questions:test.questions, tags:test.tags},null,2); let blob=new Blob([data],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=test.name.replace(/[^a-z0-9]/gi,'_')+'.json'; a.click(); } }
+function openImportModal(){ document.getElementById('importModal').classList.remove('hidden'); }
+function closeImportModal(){ document.getElementById('importModal').classList.add('hidden'); }
+function importTest(){ let file=document.getElementById('importFile').files[0]; if(!file)return; let reader=new FileReader(); reader.onload=function(e){ try{ let data=JSON.parse(e.target.result); let newTest={id:Date.now(), teacherId:currentTeacher.username, name:data.name, timeLimit:data.timeLimit||30, code:Math.random().toString(36).substring(2,8).toUpperCase(), questions:data.questions||[], tags:data.tags||[], isActive:false, results:[]}; tests.push(newTest); saveAll(); renderTeacherTestsList(); closeImportModal(); showToast("Импорт шуд!"); }catch(err){alert("Файли нодуруст!");} }; reader.readAsText(file); }
+function backToTeacherPanel(){ document.getElementById('testEditor').classList.add('hidden'); document.getElementById('teacherPanel').classList.remove('hidden'); renderTeacherTestsList(); }
+function closeQuestionModal(){ document.getElementById('questionModal').classList.add('hidden'); window.matchData=null; }
+
+// Match helpers
+function changeQuestionType(){ let type=document.getElementById('questionType').value; let c=document.getElementById('questionTypeFields');
+  if(type==='closed') c.innerHTML=`<div><label>Матн:</label><textarea id="closed_q" rows="3"></textarea></div><div class="options-row"><div><label>A:</label><input id="closed_opt_0"></div><div><label>B:</label><input id="closed_opt_1"></div><div><label>C:</label><input id="closed_opt_2"></div><div><label>D:</label><input id="closed_opt_3"></div></div><div><label>Ҷавоб (0-3):</label><input type="number" id="closed_ans" min="0" max="3"></div>`;
+  else if(type==='multi') c.innerHTML=`<div><label>Матн:</label><textarea id="multi_q" rows="3"></textarea></div><div class="options-row"><div><label>A:</label><input id="multi_opt_0"></div><div><label>B:</label><input id="multi_opt_1"></div><div><label>C:</label><input id="multi_opt_2"></div><div><label>D:</label><input id="multi_opt_3"></div></div><div><label>Ҷавобҳо (0,1,2,3):</label><input id="multi_ans" placeholder="0,2"></div>`;
+  else if(type==='match') c.innerHTML=`<div><label>Матн:</label><textarea id="match_text" rows="2"></textarea></div><div id="match_lefts_container"></div><button class="btn btn-sm btn-outline" onclick="addMatchLeft()">+ Чап</button><div><label>Вариантҳои рост:</label></div><div id="match_rights_container"></div><button class="btn btn-sm btn-outline" onclick="addMatchRight()">+ Рост</button>`;
+  else c.innerHTML=`<div><label>Матн:</label><textarea id="open_q" rows="3"></textarea></div><div><label>Ҷавоби дуруст:</label><input id="open_ans"></div>`;
+  if(!window.matchData) window.matchData={lefts:[],rights:[],pairs:[]};
+  if(type==='match') renderMatchFields(); }
+function addMatchLeft(){ window.matchData.lefts.push(''); window.matchData.pairs.push(0); renderMatchFields(); }
+function removeMatchLeft(i){ window.matchData.lefts.splice(i,1); window.matchData.pairs.splice(i,1); renderMatchFields(); }
+function addMatchRight(){ window.matchData.rights.push(''); renderMatchFields(); }
+function removeMatchRight(i){ window.matchData.rights.splice(i,1); renderMatchFields(); }
+function renderMatchFields(){ let lc=document.getElementById('match_lefts_container'), rc=document.getElementById('match_rights_container'); if(lc) lc.innerHTML=window.matchData.lefts.map((l,i)=>`<div style="display:flex; gap:8px; margin-bottom:8px"><input type="text" class="match-left-${i}" value="${escapeHtml(l)}" style="flex:1"><select class="match-pair-${i}" style="width:100px">${window.matchData.rights.map((r,ri)=>`<option value="${ri}" ${window.matchData.pairs[i]===ri?'selected':''}>${ri+1}</option>`).join('')}</select><button class="btn btn-sm btn-danger" onclick="removeMatchLeft(${i})">✖</button></div>`).join('');
+  if(rc) rc.innerHTML=window.matchData.rights.map((r,i)=>`<div style="display:flex; gap:8px; margin-bottom:8px"><input type="text" class="match-right-${i}" value="${escapeHtml(r)}" style="flex:1"><button class="btn btn-sm btn-danger" onclick="removeMatchRight(${i})">✖</button></div>`).join(''); }
+
+// ==================== RESULTS ====================
+function showResults(testId){ let test=tests.find(t=>t.id===testId); if(!test)return; currentResultsTestId=testId; document.getElementById('resultsModalTitle').innerHTML=`📊 ${escapeHtml(test.name)}`; let results=test.results||[]; if(resultsChart) resultsChart.destroy(); let ctx=document.getElementById('resultsChart')?.getContext('2d'); if(ctx && results.length){ let labels=results.map(r=>r.name); let scores=results.map(r=>r.percent); resultsChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Фоиз %',data:scores,backgroundColor:'#3b82f6',borderRadius:8}]},options:{responsive:true}}); } let sorted=[...results].sort((a,b)=>b.percent-a.percent); document.getElementById('rankingList').innerHTML=sorted.slice(0,10).map((r,i)=>`<div class="ranking-item"><span>${i+1}. ${escapeHtml(r.name)}</span><span>${r.percent}% (${r.grade})</span></div>`).join('')||'<div>Ҳанӯз натиҷа нест</div>'; document.getElementById('resultsTableBody').innerHTML=results.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${r.date}</td><td>${r.earned}/${r.total}</td><td>${r.percent}%</td><td>${r.grade}</td></tr>`).join(''); document.getElementById('resultsModal').classList.remove('hidden'); }
+function closeResultsModal(){ document.getElementById('resultsModal').classList.add('hidden'); if(resultsChart){resultsChart.destroy(); resultsChart=null;} }
+function exportResultsToCSV(){ let test=tests.find(t=>t.id===currentResultsTestId); if(!test)return; let csv="Ном,Сана,Хол,Фоиз,Баҳо\n"+test.results.map(r=>`${r.name},${r.date},${r.earned}/${r.total},${r.percent},${r.grade}`).join("\n"); let blob=new Blob(["\uFEFF"+csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`results_${test.name}.csv`; a.click(); }
+
+// ==================== STUDENT ====================
+function showStudentPanel(){ document.getElementById('mainMenu').classList.add('hidden'); document.getElementById('studentPanel').classList.remove('hidden'); }
+function startStudentTest(){ let code=document.getElementById('studentCode').value.trim().toUpperCase(); let name=document.getElementById('studentName').value.trim(); if(!code){alert("Рамзи тест!");return;} if(!name){alert("Номи шумо!");return;} let test=tests.find(t=>t.code===code && t.isActive===true); if(!test){alert("Рамз нодуруст ё тест ғайрифаъол!");return;} currentStudentTest=JSON.parse(JSON.stringify(test)); currentStudentName=name; currentStudentAnswers=new Array(currentStudentTest.questions.length).fill(null); document.getElementById('studentPanel').classList.add('hidden'); startQuiz(); }
+function startQuiz(){ quizCurrentIndex=0; quizTimeLeft=currentStudentTest.timeLimit*60; quizActive=true; fraudWarningShown=false; updateTimerDisplay(); if(quizTimerInterval) clearInterval(quizTimerInterval); quizTimerInterval=setInterval(()=>{ if(quizTimeLeft<=0){ clearInterval(quizTimerInterval); finishQuiz(); } else { quizTimeLeft--; updateTimerDisplay(); } },1000); document.getElementById('quizScreen').classList.remove('hidden'); renderQuestion(); }
+function updateTimerDisplay(){ let m=Math.floor(quizTimeLeft/60); let s=quizTimeLeft%60; let el=document.getElementById('quizTimer'); el.textContent=`${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; if(quizTimeLeft<=60) el.classList.add('timer-danger'); else if(quizTimeLeft<=120) el.classList.add('timer-warning'); else{ el.classList.remove('timer-danger','timer-warning'); } }
+function renderQuestion(){ let q=currentStudentTest.questions[quizCurrentIndex]; let c=document.getElementById('quizContent'); let btn=document.getElementById('quizNextBtn'); document.getElementById('quizTitle').innerHTML=`${escapeHtml(currentStudentTest.name)} | ${quizCurrentIndex+1}/${currentStudentTest.questions.length}`;
+  if(q.type==='closed'){ c.innerHTML=`<div><p style="font-size:20px; margin-bottom:20px">${escapeHtml(q.q)}</p>${q.opts.map((opt,i)=>`<button class="option-btn" onclick="selectClosed(${i})" id="opt_${i}"><strong>${String.fromCharCode(65+i)}.</strong> ${escapeHtml(opt)}</button>`).join('')}</div>`; btn.disabled=false; }
+  else if(q.type==='multi'){ c.innerHTML=`<div><p style="font-size:20px; margin-bottom:20px">${escapeHtml(q.q)}</p>${q.opts.map((opt,i)=>`<button class="option-btn multi-correct" onclick="toggleMulti(${i})" id="opt_${i}"><strong>${String.fromCharCode(65+i)}.</strong> ${escapeHtml(opt)}</button>`).join('')}</div>`; btn.disabled=false; window.multiSelected=[]; }
+  else if(q.type==='match'){ let html=`<div><p style="font-size:18px; margin-bottom:16px">${escapeHtml(q.text)}</p>`; for(let i=0;i<q.lefts.length;i++){ html+=`<div class="match-row"><div class="match-left">${escapeHtml(q.lefts[i])}</div><select class="match-select" id="match_${i}"><option value="">—</option>${q.rights.map((r,ri)=>`<option value="${ri}">${ri+1}. ${escapeHtml(r)}</option>`).join('')}</select></div>`; } html+=`</div>`; c.innerHTML=html; for(let i=0;i<q.lefts.length;i++){ document.getElementById(`match_${i}`).addEventListener('change',()=>checkMatch()); } btn.disabled=true; }
+  else{ c.innerHTML=`<div><p style="font-size:20px; margin-bottom:20px">${escapeHtml(q.q)}</p><input type="text" id="openAns" style="width:100%; padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-size:16px" placeholder="Ҷавоби худро нависед..."></div>`; btn.disabled=true; document.getElementById('openAns')?.addEventListener('input',()=>{ document.getElementById('quizNextBtn').disabled=false; }); } }
+function selectClosed(i){ currentStudentAnswers[quizCurrentIndex]={type:'closed',selected:i}; for(let j=0;j<4;j++){ let btn=document.getElementById(`opt_${j}`); if(btn) btn.style.borderColor=j===i?'#3b82f6':''; } document.getElementById('quizNextBtn').disabled=false; }
+function toggleMulti(i){ if(!window.multiSelected) window.multiSelected=[]; let idx=window.multiSelected.indexOf(i); if(idx>-1) window.multiSelected.splice(idx,1); else window.multiSelected.push(i); for(let j=0;j<4;j++){ let btn=document.getElementById(`opt_${j}`); if(btn) btn.style.borderColor=window.multiSelected.includes(j)?'#10b981':''; } currentStudentAnswers[quizCurrentIndex]={type:'multi',selected:[...window.multiSelected]}; document.getElementById('quizNextBtn').disabled=false; }
+function checkMatch(){ let q=currentStudentTest.questions[quizCurrentIndex]; let all=true; for(let i=0;i<q.lefts.length;i++){ if(!document.getElementById(`match_${i}`).value) all=false; } if(all){ let sel=[]; for(let i=0;i<q.lefts.length;i++) sel.push(parseInt(document.getElementById(`match_${i}`).value)); currentStudentAnswers[quizCurrentIndex]={type:'match',selected:sel}; document.getElementById('quizNextBtn').disabled=false; } }
+function nextQuestion(){ let q=currentStudentTest.questions[quizCurrentIndex]; if(q.type==='open'){ let val=document.getElementById('openAns')?.value.trim(); if(val) currentStudentAnswers[quizCurrentIndex]={type:'open',selected:val}; } if(quizCurrentIndex<currentStudentTest.questions.length-1){ quizCurrentIndex++; window.multiSelected=[]; renderQuestion(); } else finishQuiz(); }
+function finishQuiz(){ quizActive=false; if(quizTimerInterval) clearInterval(quizTimerInterval); let results=calcScore(); let original=tests.find(t=>t.code===currentStudentTest.code); if(original){ if(!original.results) original.results=[]; original.results.push({ name:currentStudentName, date:new Date().toLocaleDateString('tg-TJ'), earned:results.earned, total:results.total, percent:results.percent, grade:results.grade, answers:currentStudentAnswers }); saveAll(); } showResult(results); }
+function calcScore(){ let earned=0,total=0; currentStudentTest.questions.forEach((q,i)=>{ let a=currentStudentAnswers[i]; if(q.type==='closed'){ total+=3; if(a && a.selected===q.ans) earned+=3; } else if(q.type==='multi'){ total+=4; if(a && a.selected){ let c=0; q.ans.forEach(ans=>{ if(a.selected.includes(ans)) c++; }); earned+=Math.min(4,c*2); } } else if(q.type==='match'){ total+=8; if(a){ let pts=0; q.pairs.forEach((p,idx)=>{ if(a.selected[idx]===p) pts+=2; }); earned+=pts; } } else{ total+=4; if(a){ let u=String(a.selected).trim().replace(',','.'); let ca=String(q.ans).trim().replace(',','.'); if(u===ca) earned+=4; } } }); let percent=Math.round((earned/total)*100); let grade=1; if(percent>=95) grade=10; else if(percent>=85) grade=9; else if(percent>=75) grade=8; else if(percent>=65) grade=7; else if(percent>=55) grade=6; else if(percent>=45) grade=5; else if(percent>=35) grade=4; else if(percent>=25) grade=3; else if(percent>=15) grade=2; return {earned,total,percent,grade}; }
+function showResult(r){ document.getElementById('quizScreen').classList.add('hidden'); document.getElementById('resultScreen').classList.remove('hidden'); let txt=r.grade>=9?'АЪЛО!':r.grade>=7?'ХУБ!':r.grade>=5?'ҚАНОАТБАХШ':'ТАКРОР'; document.getElementById('resultTitle').innerHTML=`📊 НАТИҶА: ${r.grade}/10 - ${txt}`; document.getElementById('resultContent').innerHTML=`<div style="text-align:center"><div style="font-size:72px; font-weight:800; color:var(--gold)">${r.percent}%</div><div style="font-size:24px; margin:10px 0">Холҳо: ${r.earned}/${r.total}</div><div style="font-size:18px">Баҳо: ${r.grade} аз 10</div></div>`; window.lastResult=r; }
+function showStudentReview(){ let q=currentStudentTest.questions, a=window.lastResult.answers; let html='<h3>📖 ТАҲЛИЛ</h3>'; q.forEach((q,i)=>{ let ans=a[i]; let status='⏭', your='—', correct=''; if(ans && (ans.selected!==null || ans.selected)){ if(q.type==='closed'){ let isC=ans.selected===q.ans; status=isC?'✅':'❌'; your=q.opts[ans.selected]; correct=q.opts[q.ans]; } else if(q.type==='multi'){ let isC=q.ans.every(a=>ans.selected.includes(a)) && ans.selected.length===q.ans.length; status=isC?'✅':'❌'; your=ans.selected.map(s=>String.fromCharCode(65+s)).join(','); correct=q.ans.map(c=>String.fromCharCode(65+c)).join(','); } else if(q.type==='match'){ let allC=q.pairs.every((p,idx)=>ans.selected[idx]===p); status=allC?'✅':'❌'; your=ans.selected.map(s=>s+1).join('-'); correct=q.pairs.map(p=>p+1).join('-'); } else{ let isC=String(ans.selected).trim()===String(q.ans).trim(); status=isC?'✅':'❌'; your=ans.selected; correct=q.ans; } } html+=`<div class="review-item" style="border-left-color:${status==='✅'?'#10b981':'#ef4444'}"><div><strong>Савол ${i+1}:</strong> ${status}</div><div style="font-size:13px; margin:8px 0">${escapeHtml(q.q||q.text||'')}</div><div style="font-size:12px"><div>📝 Шумо: ${escapeHtml(your)}</div><div>✓ Дуруст: ${escapeHtml(correct)}</div>${q.comment?`<div>💡 ${escapeHtml(q.comment)}</div>`:''}</div></div>`; }); document.getElementById('resultContent').innerHTML=html; document.getElementById('resultTitle').innerHTML='📖 ТАҲЛИЛИ ҶАВОБҲО'; }
+async function generatePDFCertificate(){ const {jsPDF}=window.jspdf; let doc=new jsPDF(); doc.setFont("helvetica"); doc.setFontSize(24); doc.text("VORTEX EXAM SYSTEM", 105, 30, {align:"center"}); doc.setFontSize(18); doc.text("СЕРТИФИКАТИ ИҶРОИ ТЕСТ", 105, 50, {align:"center"}); doc.setFontSize(12); doc.text(`Номи талаба: ${currentStudentName}`, 20, 80); doc.text(`Номи тест: ${currentStudentTest.name}`, 20, 95); doc.text(`Сана: ${new Date().toLocaleDateString('tg-TJ')}`, 20, 110); doc.text(`Натиҷа: ${window.lastResult.earned}/${window.lastResult.total} хол (${window.lastResult.percent}%)`, 20, 125); doc.text(`Баҳо: ${window.lastResult.grade} аз 10`, 20, 140); doc.setFontSize(10); doc.text("Ин сертификат тасдиқ мекунад, ки талаба тести мазкурро бомуваффақият иҷро намудааст.", 20, 170, {maxWidth:170}); doc.save(`certificate_${currentStudentName}.pdf`); }
+
+document.getElementById('quizNextBtn').onclick = nextQuestion;
+(async function() {
+    await init();
+    setupRootButton();
+    injectRootPanel();
+    console.log("✅ Root Access омода! 5 клик ба логотип VORTEX");
 })();
+// ==================== ROOT ACCESS ====================
+let rootAccess = false;
+let rootClickCount = 0;
+let rootTimer = null;
+
+function checkRootAccess(input) {
+    if (input === "VORTEX_ROOT_2025" || input === "vortex_root") {
+        rootAccess = true;
+        showRootPanel();
+        showToast("🔓 Root Access фаъол шуд!");
+        return true;
+    }
+    return false;
+}
+
+function showRootPanel() {
+    if (!rootAccess) return;
+    document.getElementById('mainMenu').classList.add('hidden');
+    let panel = document.getElementById('rootAdminPanel');
+    if (panel) panel.classList.remove('hidden');
+    loadAllDataForRoot();
+}
+
+async function loadAllDataForRoot() {
+    if (!window.db) return;
+    const snap = await window.dbGet(window.dbChild(window.dbRef(window.db), 'vortex_data'));
+    if (snap.exists()) {
+        const data = snap.val();
+        displayRootTests(data.tests || [], data.teachers || []);
+    }
+}
+
+function displayRootTests(tests, teachers) {
+    let container = document.getElementById('rootTestsList');
+    if (!container) return;
+    if (tests.length === 0) {
+        container.innerHTML = '<div>Ҳеҷ тест нест</div>';
+        return;
+    }
+    container.innerHTML = tests.map(test => `
+        <div style="background:var(--surface2); padding:16px; margin-bottom:12px; border-radius:12px; border-left:4px solid #f59e0b">
+            <h4>📋 ${escapeHtml(test.name)}</h4>
+            <p>🔑 ${test.code} | 👨‍🏫 ${test.teacherId}</p>
+            <div><strong>✅ ҶАВОБҲО:</strong></div>
+            ${test.questions.map((q, i) => {
+                let ans = '';
+                if (q.type === 'closed') ans = `${i+1}. ${String.fromCharCode(65+q.ans)}: ${q.opts[q.ans]}`;
+                else if (q.type === 'multi') ans = `${i+1}. ${q.ans.map(a=>String.fromCharCode(65+a)).join(', ')}`;
+                else if (q.type === 'match') ans = `${i+1}. ${q.pairs.map((p,idx)=>`${String.fromCharCode(65+idx)}→${p+1}`).join(', ')}`;
+                else ans = `${i+1}. ${q.ans}`;
+                return `<div style="background:rgba(16,185,129,0.2); padding:4px; margin:2px 0; border-radius:6px">✅ ${escapeHtml(ans)}</div>`;
+            }).join('')}
+        </div>
+    `).join('');
+    document.getElementById('rootStats').innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px">
+            <div class="stat-card"><div class="stat-num">${tests.length}</div><div>Тестҳо</div></div>
+            <div class="stat-card"><div class="stat-num">${tests.reduce((s,t)=>s+t.questions.length,0)}</div><div>Саволҳо</div></div>
+            <div class="stat-card"><div class="stat-num">${teachers.length}</div><div>Устодон</div></div>
+        </div>
+    `;
+}
+
+function injectRootPanel() {
+    if (document.getElementById('rootAdminPanel')) return;
+    let div = document.createElement('div');
+    div.id = 'rootAdminPanel';
+    div.className = 'hidden';
+    div.innerHTML = `
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">👑 ROOT ADMIN</div>
+                <div><button class="btn btn-outline" onclick="closeRootPanel()">🔒 Пӯшидан</button></div>
+            </div>
+            <div id="rootStats"></div>
+            <div id="rootTestsList" style="max-height:400px; overflow-y:auto"></div>
+        </div>
+    `;
+    document.querySelector('.container').appendChild(div);
+}
+
+function closeRootPanel() {
+    document.getElementById('rootAdminPanel').classList.add('hidden');
+    document.getElementById('mainMenu').classList.remove('hidden');
+    rootAccess = false;
+}
+
+
+// Бознигарии handleAuth
+const origHandle = window.handleAuth;
+window.handleAuth = function() {
+    let user = document.getElementById('authUsername').value;
+    let pass = document.getElementById('authPassword').value;
+    if (checkRootAccess(user) || checkRootAccess(pass)) return;
+    origHandle();
+};
 </script>
 </body>
 </html>
